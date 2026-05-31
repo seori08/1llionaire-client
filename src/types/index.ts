@@ -1,0 +1,313 @@
+// ─── 공통 API 타입 ───────────────────────────────────────────
+
+export interface ApiResponse<T = unknown> {
+  success: boolean;
+  data: T;
+  message: string;
+}
+
+export interface ApiListResponse<T = unknown> {
+  success: boolean;
+  data: {
+    items: T[];
+    pagination: Pagination;
+  };
+  message: string;
+}
+
+export interface ApiError {
+  success: false;
+  error: {
+    code: ErrorCode;
+    message: string;
+    details: { field: string; message: string }[];
+  };
+}
+
+export interface Pagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export type ErrorCode =
+  | "VALIDATION_ERROR"
+  | "UNAUTHORIZED"
+  | "FORBIDDEN"
+  | "NOT_FOUND"
+  | "CONFLICT"
+  | "SERVER_ERROR";
+
+// ─── 사용자 ──────────────────────────────────────────────────
+
+export type UserType = "customer" | "freelancer" | "admin";
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  user_type: UserType;
+  phone?: string;
+  is_active: boolean;
+  created_at: string;
+  customer_profile?: CustomerProfile | null;
+  freelancer_profile?: FreelancerProfileSummary | null;
+}
+
+export interface CustomerProfile {
+  id: string;
+  customer_type?: string;
+  company_name?: string;
+  department?: string;
+  manager_name?: string;
+}
+
+export interface FreelancerProfileSummary {
+  id: string;
+  display_name?: string;
+  profile_image_url?: string;
+  headline?: string;
+  status: FreelancerStatus;
+  avg_rating?: number;
+  review_count: number;
+}
+
+// ─── 프리랜서 ────────────────────────────────────────────────
+
+export type FreelancerStatus =
+  | "draft"
+  | "pending_review"
+  | "approved"
+  | "rejected"
+  | "hidden"
+  | "suspended";
+
+export interface FreelancerProfile {
+  id: string;
+  user_id: string;
+  display_name?: string;
+  profile_image_url?: string;
+  headline?: string;
+  bio?: string;
+  region?: string;
+  available_regions: string[];
+  categories: string[];
+  styles: string[];
+  career_years?: number;
+  base_price_min?: number;
+  base_price_max?: number;
+  languages: string[];
+  script_writing_available: boolean;
+  rehearsal_available: boolean;
+  travel_available: boolean;
+  status: FreelancerStatus;
+  avg_rating?: number;
+  review_count: number;
+  approved_at?: string;
+  rejected_reason?: string;
+  portfolios?: Portfolio[];
+}
+
+export interface Portfolio {
+  id: string;
+  freelancer_id: string;
+  portfolio_type: "intro_video" | "event_video" | "audio_sample" | "other";
+  title: string;
+  description?: string;
+  media_url: string;
+  thumbnail_url?: string;
+  category?: string;
+  is_representative: boolean;
+  is_public: boolean;
+}
+
+// ─── 고객 요청서 ─────────────────────────────────────────────
+
+export type RequestStatus =
+  | "submitted"
+  | "reviewing"
+  | "recommending"
+  | "recommended"
+  | "consulting"
+  | "booked"
+  | "completed"
+  | "reviewed"
+  | "canceled"
+  | "disputed";
+
+export interface EventRequest {
+  id: string;
+  customer_id: string;
+  event_title: string;
+  event_type: string;
+  event_date: string;
+  start_time: string;
+  end_time: string;
+  region: string;
+  venue?: string;
+  budget_min?: number;
+  budget_max?: number;
+  preferred_freelancer_type: string[];
+  preferred_styles: string[];
+  required_language?: string;
+  script_required: boolean;
+  rehearsal_required: boolean;
+  travel_required: boolean;
+  description?: string;
+  status: RequestStatus;
+  created_at: string;
+  updated_at: string;
+  recommendations?: Recommendation[];
+  customer?: Pick<User, "id" | "name" | "email">;
+}
+
+// ─── 추천 후보 ───────────────────────────────────────────────
+
+export type RecommendationStatus =
+  | "draft"
+  | "sent"
+  | "viewed"
+  | "consultation_requested"
+  | "selected"
+  | "rejected";
+
+export interface Recommendation {
+  id: string;
+  request_id: string;
+  freelancer_id: string;
+  recommended_by: string;
+  recommendation_reason?: string;
+  display_order: number;
+  status: RecommendationStatus;
+  freelancer: FreelancerProfile;
+}
+
+// ─── 견적 ────────────────────────────────────────────────────
+
+export type QuoteStatus = "proposed" | "accepted" | "rejected" | "expired" | "canceled";
+
+export interface Quote {
+  id: string;
+  request_id: string;
+  freelancer_id: string;
+  price: number;
+  platform_fee: number;
+  total_price: number;
+  included_services?: string;
+  script_included: boolean;
+  rehearsal_included: boolean;
+  travel_fee_included: boolean;
+  message?: string;
+  valid_until?: string;
+  status: QuoteStatus;
+  created_at: string;
+}
+
+// ─── 예약 ────────────────────────────────────────────────────
+
+export type BookingStatus = "pending" | "confirmed" | "completed" | "canceled" | "disputed";
+export type PaymentStatus = "unpaid" | "deposit_paid" | "fully_paid" | "refunded" | "failed";
+export type SettlementStatus = "pending" | "scheduled" | "completed" | "held" | "failed";
+
+export interface Booking {
+  id: string;
+  customer_id: string;
+  freelancer_id: string;
+  event_title: string;
+  event_date: string;
+  start_time: string;
+  end_time: string;
+  venue?: string;
+  final_price: number;
+  platform_fee: number;
+  freelancer_amount: number;
+  booking_status: BookingStatus;
+  payment_status: PaymentStatus;
+  settlement_status: SettlementStatus;
+  cancel_reason?: string;
+  created_at: string;
+  customer?: Pick<User, "id" | "name">;
+  freelancer?: Pick<FreelancerProfile, "id" | "display_name" | "profile_image_url">;
+  reviews?: Review[];
+}
+
+// ─── 후기 ────────────────────────────────────────────────────
+
+export type ReviewStatus = "pending" | "published" | "hidden" | "reported";
+
+export interface Review {
+  id: string;
+  booking_id: string;
+  customer_id: string;
+  freelancer_id: string;
+  punctuality_score: number;
+  voice_delivery_score: number;
+  event_understanding_score: number;
+  atmosphere_score: number;
+  script_score: number;
+  response_score: number;
+  communication_score: number;
+  total_score: number;
+  rehire_intent: boolean;
+  comment?: string;
+  status: ReviewStatus;
+  created_at: string;
+  customer?: Pick<User, "name">;
+  booking?: Pick<Booking, "event_title" | "event_date">;
+}
+
+// ─── 상태 레이블 ─────────────────────────────────────────────
+
+export const FREELANCER_STATUS_LABEL: Record<FreelancerStatus, string> = {
+  draft: "작성 중",
+  pending_review: "검수 대기",
+  approved: "승인 완료",
+  rejected: "반려",
+  hidden: "비공개",
+  suspended: "정지",
+};
+
+export const REQUEST_STATUS_LABEL: Record<RequestStatus, string> = {
+  submitted: "접수 완료",
+  reviewing: "검토 중",
+  recommending: "후보 선정 중",
+  recommended: "후보 추천 완료",
+  consulting: "상담 진행 중",
+  booked: "예약 완료",
+  completed: "행사 완료",
+  reviewed: "후기 등록",
+  canceled: "취소",
+  disputed: "분쟁",
+};
+
+export const BOOKING_STATUS_LABEL: Record<BookingStatus, string> = {
+  pending: "예약 대기",
+  confirmed: "예약 확정",
+  completed: "행사 완료",
+  canceled: "취소",
+  disputed: "분쟁",
+};
+
+export const PAYMENT_STATUS_LABEL: Record<PaymentStatus, string> = {
+  unpaid: "미결제",
+  deposit_paid: "계약금 납부",
+  fully_paid: "전액 납부",
+  refunded: "환불",
+  failed: "결제 실패",
+};
+
+export const SETTLEMENT_STATUS_LABEL: Record<SettlementStatus, string> = {
+  pending: "정산 대기",
+  scheduled: "정산 예정",
+  completed: "정산 완료",
+  held: "정산 보류",
+  failed: "정산 실패",
+};
+
+export const REVIEW_STATUS_LABEL: Record<ReviewStatus, string> = {
+  pending: "검수 대기",
+  published: "공개",
+  hidden: "비공개",
+  reported: "신고됨",
+};
