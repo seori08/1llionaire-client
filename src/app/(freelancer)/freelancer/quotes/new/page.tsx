@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -38,7 +39,7 @@ const schema = z
   });
 type FormValues = z.infer<typeof schema>;
 
-export default function FreelancerQuoteNewPage() {
+function FreelancerQuoteNewContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -164,5 +165,14 @@ export default function FreelancerQuoteNewPage() {
         </Button>
       </form>
     </div>
+  );
+}
+
+
+export default function FreelancerQuoteNewPage() {
+  return (
+    <Suspense fallback={<div className="animate-fade-in max-w-lg">로딩 중...</div>}>
+      <FreelancerQuoteNewContent />
+    </Suspense>
   );
 }

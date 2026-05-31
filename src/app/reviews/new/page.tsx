@@ -1,5 +1,6 @@
 "use client";
 
+import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -55,7 +56,7 @@ function StarRating({ value, onChange }: { value: number; onChange: (v: number) 
   );
 }
 
-export default function NewReviewPage() {
+function NewReviewContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -135,5 +136,14 @@ export default function NewReviewPage() {
         </form>
       </div>
     </ProtectedRoute>
+  );
+}
+
+
+export default function NewReviewPage() {
+  return (
+    <Suspense fallback={<div className="container mx-auto max-w-lg px-4 py-10">로딩 중...</div>}>
+      <NewReviewContent />
+    </Suspense>
   );
 }
