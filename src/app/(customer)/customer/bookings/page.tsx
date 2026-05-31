@@ -1,0 +1,83 @@
+"use client";
+
+import { useState } from "react";
+import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { bookingApi } from "@/lib/api";
+import { queryKeys } from "@/lib/queryKeys";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { BookingStatusBadge, PaymentStatusBadge } from "@/components/common/StatusBadge";
+import { LoadingState, EmptyState, ErrorState } from "@/components/common/States";
+import { Pagination } from "@/components/common/Pagination";
+import { ChevronRight } from "lucide-react";
+import { formatDate, formatPrice } from "@/lib/utils";
+import { Booking } from "@/types";
+
+export default function CustomerBookingsPage() {
+  const [page, setPage] = useState(1);
+
+  const { data, isLoading, isError, refetch } = useQuery({
+    queryKey: queryKeys.customerBookingsPage(page),
+    queryFn: () => bookingApi.getBookings({ page, limit: 10 }),
+  });
+
+  const items: Booking[] = data?.data?.data?.items ?? [];
+  const pagination = data?.data?.data?.pagination;
+
+  return (
+    <div className="animate-fade-in">
+      <div className="mb-6">
+        <h1 className="text-2xl font-bold">내 예약</h1>
+        <p className="text-muted-foreground text-sm mt-1">예약 현황과 결제 상태를 확인하세요</p>
+      </div>
+
+      {isLoading && <LoadingState />}
+      {isError && <ErrorState onRetry={() => refetch()} />}
+      {!isLoading && !isError && items.length === 0 && (
+        <EmptyState title="예약 내역이 없습니다" description="진행자를 섭외하면 예약이 생성됩니다" />
+      )}
+
+      <div className="space-y-3">
+        {items.map((booking) => (
+          <Card key={booking.id} className="hover:shadow-md transition-shadow">
+            <CardContent className="p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <BookingStatusBadge status={booking.booking_status} />
+                    <PaymentStatusBadge status={booking.payment_status} />
+                    <span className="text-xs text-muted-foreground">{formatDate(booking.event_date)}</span>
+                  </div>
+                  <h2 className="font-semibold truncate">{booking.event_title}</h2>
+                  {booking.freelancer && (
+                    <p className="text-sm text-muted-foreground mt-0.5">진행자: {booking.freelancer.display_name}</p>
+                  )}
+                  <p className="text-sm font-medium mt-1">{formatPrice(booking.final_price)}</p>
+                </div>
+                <div className="flex flex-col items-end gap-2">
+                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                  {booking.booking_status === "confirmed" &&
+                  booking.payment_status !== "fully_paid" && (
+                    <Link href={`/customer/bookings/${booking.id}/payment`}>
+                      <Button size="sm" className="text-xs bg-navy text-white hover:bg-navy-light">
+                        결제하기
+                      </Button>
+                    </Link>
+                  )}
+                {booking.booking_status === "completed" && (
+                    <Link href={`/reviews/new?bookingId=${booking.id}`}>
+                      <Button size="sm" variant="outline" className="text-xs">후기 작성</Button>
+                    </Link>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {pagination && <Pagination pagination={pagination} onPageChange={setPage} />}
+    </div>
+  );
+}
