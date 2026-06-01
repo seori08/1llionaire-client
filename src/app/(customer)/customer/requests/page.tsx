@@ -46,8 +46,7 @@ export default function CustomerRequestsPage() {
       {!isLoading && !isError && items.length === 0 && (
         <EmptyState
           title="요청서가 없습니다"
-          description="첫 요청서를 작성하고 맞춤 진행자를 추천받으세요"
-          action={{ label: "요청서 작성하기", onClick: () => {} }}
+          description="오른쪽 상단의 요청서 작성 버튼으로 첫 섭외 요청을 시작하세요."
         />
       )}
 

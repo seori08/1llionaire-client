@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,8 +30,14 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
-export default function LoginPage() {
+function getSafeNext(value: string | null, fallback: string) {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return fallback;
+  return value;
+}
+
+function LoginContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { setAuth, refreshUser } = useAuth();
   const [serverError, setServerError] = useState("");
 
@@ -56,14 +62,14 @@ export default function LoginPage() {
 
       setAuth(user);
 
-      const redirect =
+      const defaultRedirect =
         user.user_type === "admin"
           ? "/admin"
           : user.user_type === "customer"
             ? "/customer/requests"
             : "/freelancer/profile";
 
-      router.push(redirect);
+      router.push(getSafeNext(searchParams.get("next"), defaultRedirect));
     } catch (err) {
       const apiErr = err as ApiError<{ error: { message: string } }>;
 
@@ -72,6 +78,9 @@ export default function LoginPage() {
       );
     }
   };
+
+  const next = searchParams.get("next");
+  const signupHref = next ? `/signup?next=${encodeURIComponent(next)}` : "/signup";
 
   return (
     <Card className="w-full max-w-[440px] rounded-2xl border-line bg-card shadow-sm">
@@ -92,6 +101,12 @@ export default function LoginPage() {
               className="rounded-md border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive"
             >
               {serverError}
+            </p>
+          )}
+
+          {searchParams.get("reason") === "password_changed" && (
+            <p className="rounded-md border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
+              비밀번호가 변경되었습니다. 새 비밀번호로 다시 로그인해 주세요.
             </p>
           )}
 
@@ -116,12 +131,20 @@ export default function LoginPage() {
           </div>
 
           <div className="space-y-2">
-            <Label
-              htmlFor="password"
-              className="text-[15px] font-bold text-text"
-            >
-              비밀번호
-            </Label>
+            <div className="flex items-center justify-between gap-3">
+              <Label
+                htmlFor="password"
+                className="text-[15px] font-bold text-text"
+              >
+                비밀번호
+              </Label>
+              <Link
+                href="/forgot-password"
+                className="text-[13px] font-semibold text-lavender hover:underline"
+              >
+                비밀번호를 잊으셨나요?
+              </Link>
+            </div>
             <Input
               id="password"
               type="password"
@@ -150,12 +173,20 @@ export default function LoginPage() {
 
           <p className="text-center text-[15px] text-slate">
             계정이 없으신가요?{" "}
-            <Link href="/signup" className="font-bold text-text hover:underline">
+            <Link href={signupHref} className="font-bold text-text hover:underline">
               회원가입
             </Link>
           </p>
         </CardFooter>
       </form>
     </Card>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginContent />
+    </Suspense>
   );
 }

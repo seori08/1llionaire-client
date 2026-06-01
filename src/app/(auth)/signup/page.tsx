@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -51,8 +51,14 @@ const ROLE_OPTIONS = [
   { value: "freelancer", label: "프리랜서", desc: "진행자로 활동하고 싶어요" },
 ] as const;
 
-export default function SignupPage() {
+function getSafeNext(value: string | null, fallback: string) {
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return fallback;
+  return value;
+}
+
+function SignupContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { setAuth, refreshUser } = useAuth();
   const [serverError, setServerError] = useState("");
 
@@ -81,11 +87,11 @@ export default function SignupPage() {
       }
 
       setAuth(user);
-      router.push(
-        user.user_type === "customer"
-          ? "/customer/requests"
-          : "/freelancer/profile"
-      );
+
+      const defaultRedirect =
+        user.user_type === "customer" ? "/customer/requests" : "/freelancer/profile";
+
+      router.push(getSafeNext(searchParams.get("next"), defaultRedirect));
     } catch (err) {
       const apiErr = err as ApiError<{ error: { message: string } }>;
 
@@ -94,6 +100,9 @@ export default function SignupPage() {
       );
     }
   };
+
+  const next = searchParams.get("next");
+  const loginHref = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
 
   return (
     <Card className="w-full max-w-[520px] rounded-2xl border-line bg-card shadow-sm">
@@ -239,12 +248,20 @@ export default function SignupPage() {
 
           <p className="text-center text-[15px] text-slate">
             이미 계정이 있으신가요?{" "}
-            <Link href="/login" className="font-bold text-text hover:underline">
+            <Link href={loginHref} className="font-bold text-text hover:underline">
               로그인
             </Link>
           </p>
         </CardFooter>
       </form>
     </Card>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={null}>
+      <SignupContent />
+    </Suspense>
   );
 }

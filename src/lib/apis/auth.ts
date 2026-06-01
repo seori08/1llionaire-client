@@ -14,6 +14,9 @@ export const authApi = {
   login: (data: { email: string; password: string }) =>
     http.post<BackendResponse<AuthSession>>("/api/auth/login", data),
 
+  requestPasswordReset: (data: { email: string }) =>
+    http.post<BackendResponse<null>>("/api/auth/password-reset/request", data),
+
   refresh: () =>
     http.post<BackendResponse<AuthSession>>("/api/auth/refresh"),
 

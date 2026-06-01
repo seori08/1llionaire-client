@@ -75,6 +75,7 @@ export function AdminNav() {
       { href: "/admin/payments", label: "결제 관리", icon: <CreditCard className="h-4 w-4" /> },
       { href: "/admin/settlements", label: "정산 관리", icon: <BarChart3 className="h-4 w-4" /> },
       { href: "/admin/reviews", label: "후기 관리", icon: <MessageSquare className="h-4 w-4" /> },
+      { href: "/settings", label: "계정 설정", icon: <Settings className="h-4 w-4" /> },
     ]} />
   );
 }

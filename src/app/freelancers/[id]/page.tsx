@@ -212,9 +212,9 @@ export default async function FreelancerDetailPage({ params }: { params: { id: s
             </CardContent>
           </Card>
 
-          <Link href="/signup">
+          <Link href={`/customer/requests/new?freelancerId=${f.id}`}>
             <Button className="w-full bg-navy text-white hover:bg-navy-light">
-              섭외 요청하기
+              이 진행자로 요청서 작성
             </Button>
           </Link>
         </div>

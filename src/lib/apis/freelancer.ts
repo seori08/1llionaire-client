@@ -19,6 +19,16 @@ export const freelancerApi = {
   updateProfile: (data: unknown) =>
     http.patch<BackendResponse<FreelancerProfile>>("/api/freelancer/profile", data),
 
+  uploadProfileImage: (file: File) => {
+    const formData = new FormData();
+    formData.append("image", file);
+
+    return http.post<BackendResponse<{ url: string }>>(
+      "/api/freelancer/profile-image",
+      formData
+    );
+  },
+
   createPortfolio: (data: unknown) =>
     http.post<BackendResponse<Portfolio>>("/api/freelancer/portfolio", data),
 

@@ -74,7 +74,7 @@ export default function RequestDetailPage({ params }: { params: { id: string } }
           <Card className="border-amber-200 bg-amber-50">
             <CardContent className="pt-6 text-sm text-amber-800">
               <p className="font-medium">관리자가 후보를 선정 중입니다</p>
-              <p className="mt-1 text-amber-700">48시간 내 맞춤 후보를 추천해 드립니다. 조금만 기다려 주세요.</p>
+              <p className="mt-1 text-amber-700">추천 후보가 준비되면 문자와 이메일로 즉시 알림을 발송합니다. (예상 소요시간: 3시간)</p>
             </CardContent>
           </Card>
         ) : null}

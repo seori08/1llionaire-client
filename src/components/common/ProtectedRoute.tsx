@@ -11,16 +11,24 @@ interface ProtectedRouteProps {
   allowedRoles?: UserType[];
 }
 
+function getCurrentPath() {
+  if (typeof window === "undefined") return "/";
+  return `${window.location.pathname}${window.location.search}`;
+}
+
 export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
     if (isLoading) return;
+
     if (!user) {
-      router.replace("/login");
+      const next = getCurrentPath();
+      router.replace(`/login?next=${encodeURIComponent(next)}`);
       return;
     }
+
     if (allowedRoles && !allowedRoles.includes(user.user_type)) {
       router.replace("/403");
     }

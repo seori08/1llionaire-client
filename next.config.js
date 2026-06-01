@@ -1,3 +1,13 @@
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+
+let apiHostname;
+
+try {
+  apiHostname = apiBaseUrl ? new URL(apiBaseUrl).hostname : undefined;
+} catch {
+  apiHostname = undefined;
+}
+
 /** @type {import('next').NextConfig} */
 const securityHeaders = [
   { key: 'X-Content-Type-Options', value: 'nosniff' },
@@ -13,6 +23,18 @@ const nextConfig = {
   poweredByHeader: false,
   images: {
     remotePatterns: [
+      ...(apiHostname
+        ? [
+            {
+              protocol: 'https',
+              hostname: apiHostname,
+            },
+            {
+              protocol: 'http',
+              hostname: apiHostname,
+            },
+          ]
+        : []),
       {
         protocol: 'https',
         hostname: '*.supabase.co',
