@@ -1,4 +1,65 @@
-@import url("https://fonts.googleapis.com/css2?family=Song+Myung&display=swap");
+@font-face {
+  font-family: "Pretendard";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Thin.woff2") format("woff2");
+  font-weight: 100;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-ExtraLight.woff2") format("woff2");
+  font-weight: 200;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Light.woff2") format("woff2");
+  font-weight: 300;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Medium.woff2") format("woff2");
+  font-weight: 500;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-ExtraBold.woff2") format("woff2");
+  font-weight: 800;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Pretendard";
+  src: url("https://cdn.jsdelivr.net/gh/projectnoonnu/pretendard@1.0/Pretendard-Black.woff2") format("woff2");
+  font-weight: 900;
+  font-display: swap;
+}
 
 @tailwind base;
 @tailwind components;
@@ -6,35 +67,107 @@
 
 @layer base {
   :root {
-    --background: 0 0% 98%;
-    --foreground: 210 29% 24%;
+    color-scheme: light;
 
+    --background: 0 0% 98%;
+    --foreground: 237 20% 13%;
+
+    --clear: 0 0% 98%;
     --card: 0 0% 100%;
-    --card-foreground: 210 29% 24%;
+    --card-foreground: 237 20% 13%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 210 29% 24%;
+    --popover-foreground: 237 20% 13%;
 
-    --primary: 10 100% 73%;
+    --primary: 235 50% 36%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 72% 59%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 216 30% 95%;
+    --secondary-foreground: 237 20% 13%;
 
-    --muted: 214 38% 97%;
-    --muted-foreground: 220 9% 46%;
+    --muted: 216 30% 95%;
+    --muted-foreground: 225 10% 42%;
 
-    --accent: 210 72% 59%;
+    --accent: 242 100% 68%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 88%;
-    --input: 0 0% 88%;
-    --ring: 210 72% 59%;
+    --border: 214 22% 90%;
+    --input: 214 22% 90%;
+    --ring: 242 100% 68%;
 
-    --radius: 0.65rem;
+    --navy: 235 50% 36%;
+    --navy-dark: 236 50% 28%;
+    --navy-light: 235 49% 48%;
+
+    --neutral-text: 237 20% 13%;
+    --neutral-muted: 225 10% 42%;
+
+    --surface: 216 30% 95%;
+
+    --lavender: 242 100% 68%;
+    --lavender-light: 243 100% 97%;
+    --lavender-dark: 242 67% 56%;
+
+    --line: 214 22% 90%;
+
+    --disabled: 214 22% 90%;
+    --disabled-text: 218 15% 65%;
+
+    --radius: 0.75rem;
+  }
+
+  .dark {
+    color-scheme: dark;
+
+    --background: 238 35% 7%;
+    --foreground: 240 45% 96%;
+
+    --clear: 238 35% 7%;
+    --card: 235 28% 12%;
+    --card-foreground: 240 45% 96%;
+
+    --popover: 235 28% 12%;
+    --popover-foreground: 240 45% 96%;
+
+    --primary: 235 50% 48%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 234 26% 16%;
+    --secondary-foreground: 240 45% 96%;
+
+    --muted: 234 26% 16%;
+    --muted-foreground: 228 14% 72%;
+
+    --accent: 242 100% 72%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 58%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 233 20% 24%;
+    --input: 233 20% 24%;
+    --ring: 242 100% 72%;
+
+    --navy: 235 50% 48%;
+    --navy-dark: 235 44% 34%;
+    --navy-light: 236 60% 64%;
+
+    --neutral-text: 240 45% 96%;
+    --neutral-muted: 228 14% 72%;
+
+    --surface: 234 26% 16%;
+
+    --lavender: 242 100% 72%;
+    --lavender-light: 243 34% 18%;
+    --lavender-dark: 242 80% 65%;
+
+    --line: 233 20% 24%;
+
+    --disabled: 233 16% 22%;
+    --disabled-text: 226 10% 55%;
   }
 
   * {
@@ -43,18 +176,13 @@
 
   html {
     scroll-behavior: smooth;
+    font-size: 18px;
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-feature-settings: "kern" 1;
     -webkit-font-smoothing: antialiased;
-  }
-
-  .song-myung-regular {
-    font-family: "Song Myung", serif;
-    font-weight: 400;
-    font-style: normal;
   }
 
   h1,
@@ -68,12 +196,12 @@
 }
 
 @layer components {
-  .prism-gradient {
-    background: linear-gradient(135deg, #4a90e2, #ff8c73);
+  .broadcast-gradient {
+    background: linear-gradient(135deg, hsl(var(--navy)), hsl(var(--lavender)));
   }
 
-  .prism-gradient-text {
-    background: linear-gradient(135deg, #4a90e2, #ff8c73);
+  .broadcast-gradient-text {
+    background: linear-gradient(135deg, hsl(var(--navy)), hsl(var(--lavender)));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -94,7 +222,7 @@
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(255, 255, 255, 0.55),
+      rgba(255, 255, 255, 0.2),
       transparent
     );
     content: "";

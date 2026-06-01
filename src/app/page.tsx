@@ -1,11 +1,19 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Mic, Star, Shield, Clock, ChevronRight, PlayCircle } from "lucide-react";
+import {
+  Mic,
+  Star,
+  Shield,
+  Clock,
+  ChevronRight,
+  PlayCircle,
+} from "lucide-react";
 
 export const metadata: Metadata = {
   title: "프리마이크 | 전문 진행자 매칭 플랫폼",
-  description: "검증된 전문 MC·아나운서·쇼호스트를 행사에 연결합니다",
+  description: "검증된 전문 MC·아나운서·쇼호스트를 행사에 연결합니다.",
 };
 
 const features = [
@@ -22,7 +30,7 @@ const features = [
   {
     icon: Clock,
     title: "신속한 후보 추천",
-    desc: "요청서 제출 후 3시간 내 맞춤 후보를 추천받으세요",
+    desc: "전문 매니저가 엄선한 맞춤 후보를 빠르게 제안합니다",
   },
 ];
 
@@ -37,43 +45,57 @@ const categories = [
 
 export default function HomePage() {
   return (
-    <div className="animate-fade-in bg-clear text-indigo">
+    <div className="animate-fade-in bg-clear text-text">
       {/* Hero */}
-      <section className="relative overflow-hidden bg-clear">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(74,144,226,0.14),_transparent_34%),radial-gradient(circle_at_top_right,_rgba(255,140,115,0.16),_transparent_38%)]" />
+      <section className="relative min-h-[720px] overflow-hidden bg-clear">
+        <Image
+          src="/hero-broadcast.webp"
+          alt="행사 진행자가 마이크를 들고 무대에서 진행하는 모습"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover object-center"
+        />
 
-        <div className="container relative mx-auto max-w-7xl px-4 py-24 md:py-36">
-          <div className="max-w-3xl">
-            <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-prism/20 bg-white px-4 py-1.5 text-sm font-medium text-prism shadow-sm">
-              <Mic className="h-3.5 w-3.5" />
+        <div className="absolute inset-0 bg-gradient-to-r from-clear via-clear/95 to-clear/20 dark:from-[#080913] dark:via-[#080913]/92 dark:to-[#080913]/30" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(97,92,255,0.13),_transparent_36%),radial-gradient(circle_at_bottom_left,_rgba(46,55,138,0.16),_transparent_42%)]" />
+
+        <div className="container relative mx-auto flex min-h-[720px] max-w-7xl items-center px-4 py-24">
+          <div className="max-w-4xl">
+            <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-lavender/20 bg-card/90 px-5 py-2.5 text-[18px] font-bold text-lavender shadow-sm backdrop-blur">
+              <Mic className="h-5 w-5" />
               전문 진행자 매칭 플랫폼
             </div>
 
-            <h1 className="mb-6 text-4xl font-bold leading-tight text-indigo md:text-5xl lg:text-6xl">
-              행사를 빛낼
+            <h1 className="mb-8 text-[54px] font-extrabold leading-[1.08] tracking-[-0.04em] text-text md:text-[68px] lg:text-[78px]">
+              섭외 고민은 끝,
               <br />
-              <span className="bg-gradient-to-r from-prism to-coral bg-clip-text text-transparent">
-                진행자
+              <span className="bg-gradient-to-r from-navy to-lavender bg-clip-text text-transparent">
+                행사에 딱 맞는 전문가를
               </span>
-              를 찾아드립니다
+              <br />
+              지금 바로 연결합니다
             </h1>
 
-            <p className="mb-10 max-w-2xl text-lg leading-relaxed text-slate">
-              기업행사, 웨딩, 라이브커머스, 컨퍼런스에 필요한 전문 MC·아나운서·쇼호스트를
-              빠르고 정확하게 연결해 드립니다.
+            <p className="mb-12 max-w-4xl text-[25px] font-medium leading-[1.75] text-slate md:text-[27px]">
+              기업행사, 웨딩, 라이브커머스, 컨퍼런스에 필요한 전문 MC · 아나운서 · 쇼호스트를 빠르고
+              <br />
+              <span className="inline-block">
+                정확하게 연결해 드립니다.
+              </span>
             </p>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-4">
               <Link href="/signup">
                 <Button size="lg" variant="primaryCta">
                   진행자 섭외 요청하기
-                  <ChevronRight className="h-4 w-4" />
+                  <ChevronRight className="h-5 w-5" />
                 </Button>
               </Link>
 
               <Link href="/freelancers">
                 <Button size="lg" variant="secondaryCta">
-                  <PlayCircle className="h-4 w-4" />
+                  <PlayCircle className="h-5 w-5" />
                   진행자 둘러보기
                 </Button>
               </Link>
@@ -83,16 +105,18 @@ export default function HomePage() {
       </section>
 
       {/* Categories */}
-      <section className="border-y border-line bg-mist">
-        <div className="container mx-auto max-w-7xl px-4 py-5">
+      <section className="border-y border-line bg-surface">
+        <div className="container mx-auto max-w-7xl px-4 py-6">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="mr-2 text-xs font-medium text-slate">분야별</span>
+            <span className="mr-2 text-[17px] font-bold text-slate">
+              분야별
+            </span>
 
             {categories.map((cat) => (
               <Link
                 key={cat}
                 href={`/freelancers?category=${encodeURIComponent(cat)}`}
-                className="rounded-full border border-line bg-white px-3 py-1.5 text-sm text-indigo transition-colors hover:border-prism hover:text-prism"
+                className="rounded-full border border-line bg-card px-4 py-2 text-[17px] font-bold text-text transition-colors hover:border-lavender hover:text-lavender"
               >
                 {cat}
               </Link>
@@ -102,12 +126,12 @@ export default function HomePage() {
       </section>
 
       {/* Features */}
-      <section className="container mx-auto max-w-7xl px-4 py-20">
-        <div className="mb-14 text-center">
-          <h2 className="mb-3 text-3xl font-bold text-indigo">
+      <section className="container mx-auto max-w-7xl px-4 py-24">
+        <div className="mb-16 text-center">
+          <h2 className="mb-4 text-[42px] font-extrabold tracking-[-0.03em] text-text">
             왜 프리마이크인가요?
           </h2>
-          <p className="text-slate">
+          <p className="text-[22px] font-medium text-slate">
             전문성과 신뢰를 기반으로 최적의 진행자를 연결합니다
           </p>
         </div>
@@ -116,17 +140,17 @@ export default function HomePage() {
           {features.map(({ icon: Icon, title, desc }) => (
             <div
               key={title}
-              className="rounded-xl border border-line bg-white p-8 shadow-sm transition-shadow hover:shadow-md"
+              className="rounded-2xl border border-line bg-card p-9 shadow-sm transition-shadow hover:shadow-md"
             >
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-lg bg-prism-light">
-                <Icon className="h-6 w-6 text-prism" />
+              <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-xl bg-lavender-light">
+                <Icon className="h-7 w-7 text-lavender" />
               </div>
 
-              <h3 className="mb-2 text-lg font-semibold text-indigo">
+              <h3 className="mb-3 text-[25px] font-bold text-text">
                 {title}
               </h3>
 
-              <p className="text-sm leading-relaxed text-slate">
+              <p className="text-[19px] leading-relaxed text-slate">
                 {desc}
               </p>
             </div>
@@ -135,13 +159,13 @@ export default function HomePage() {
       </section>
 
       {/* How it works */}
-      <section className="bg-mist py-20">
+      <section className="bg-surface py-24">
         <div className="container mx-auto max-w-7xl px-4">
-          <h2 className="mb-14 text-center text-3xl font-bold text-indigo">
+          <h2 className="mb-16 text-center text-[42px] font-extrabold tracking-[-0.03em] text-text">
             이용 방법
           </h2>
 
-          <div className="grid gap-6 md:grid-cols-4">
+          <div className="grid gap-8 md:grid-cols-4">
             {[
               {
                 step: "01",
@@ -151,7 +175,7 @@ export default function HomePage() {
               {
                 step: "02",
                 title: "후보 추천",
-                desc: "전문 매니저가 48시간 내 맞춤 후보를 추천합니다",
+                desc: "전문 매니저의 큐레이션으로 딱 맞는 후보를 제안받으세요",
               },
               {
                 step: "03",
@@ -165,15 +189,15 @@ export default function HomePage() {
               },
             ].map(({ step, title, desc }) => (
               <div key={step} className="text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-prism to-coral text-sm font-bold text-white shadow-sm">
+                <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-navy to-lavender text-[17px] font-bold text-white shadow-sm">
                   {step}
                 </div>
 
-                <h3 className="mb-2 font-semibold text-indigo">
+                <h3 className="mb-3 text-[23px] font-bold text-text">
                   {title}
                 </h3>
 
-                <p className="text-sm text-slate">
+                <p className="text-[18px] leading-relaxed text-slate">
                   {desc}
                 </p>
               </div>
@@ -183,16 +207,16 @@ export default function HomePage() {
       </section>
 
       {/* CTA */}
-      <section className="container mx-auto max-w-7xl px-4 py-20 text-center">
-        <h2 className="mb-4 text-3xl font-bold text-indigo">
+      <section className="container mx-auto max-w-7xl px-4 py-24 text-center">
+        <h2 className="mb-5 text-[42px] font-extrabold tracking-[-0.03em] text-text">
           지금 바로 시작하세요
         </h2>
 
-        <p className="mb-8 text-slate">
+        <p className="mb-10 text-[22px] font-medium text-slate">
           전문 진행자와의 연결, 프리마이크가 도와드립니다
         </p>
 
-        <div className="flex flex-wrap justify-center gap-3">
+        <div className="flex flex-wrap justify-center gap-4">
           <Link href="/signup">
             <Button size="lg" variant="primaryCta">
               고객으로 시작하기
@@ -208,11 +232,11 @@ export default function HomePage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-line bg-white py-8">
-        <div className="container mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 text-sm text-slate sm:flex-row">
+      <footer className="border-t border-line bg-card py-9">
+        <div className="container mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 text-[17px] text-slate sm:flex-row">
           <div className="flex items-center gap-2">
-            <Mic className="h-4 w-4 text-prism" />
-            <span className="font-semibold text-indigo">프리마이크</span>
+            <Mic className="h-5 w-5 text-lavender" />
+            <span className="font-bold text-text">프리마이크</span>
           </div>
 
           <p>© 2026 FreeMic. All rights reserved.</p>

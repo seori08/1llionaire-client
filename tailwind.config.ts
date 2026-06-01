@@ -1,5 +1,7 @@
 import type { Config } from "tailwindcss";
 
+const withAlpha = (variable: string) => `hsl(var(${variable}) / <alpha-value>)`;
+
 const config: Config = {
   darkMode: ["class"],
   content: [
@@ -10,81 +12,99 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Song Myung", "serif"],
-        display: ["Song Myung", "serif"],
+        sans: ["Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", "sans-serif"],
+        display: ["Pretendard", "Apple SD Gothic Neo", "Noto Sans KR", "sans-serif"],
       },
       colors: {
-        border: "hsl(var(--border))",
-        input: "hsl(var(--input))",
-        ring: "hsl(var(--ring))",
-        background: "hsl(var(--background))",
-        foreground: "hsl(var(--foreground))",
+        border: withAlpha("--border"),
+        input: withAlpha("--input"),
+        ring: withAlpha("--ring"),
+        background: withAlpha("--background"),
+        foreground: withAlpha("--foreground"),
 
         primary: {
-          DEFAULT: "hsl(var(--primary))",
-          foreground: "hsl(var(--primary-foreground))",
+          DEFAULT: withAlpha("--primary"),
+          foreground: withAlpha("--primary-foreground"),
         },
-
         secondary: {
-          DEFAULT: "hsl(var(--secondary))",
-          foreground: "hsl(var(--secondary-foreground))",
+          DEFAULT: withAlpha("--secondary"),
+          foreground: withAlpha("--secondary-foreground"),
         },
-
         destructive: {
-          DEFAULT: "hsl(var(--destructive))",
-          foreground: "hsl(var(--destructive-foreground))",
+          DEFAULT: withAlpha("--destructive"),
+          foreground: withAlpha("--destructive-foreground"),
         },
-
         muted: {
-          DEFAULT: "hsl(var(--muted))",
-          foreground: "hsl(var(--muted-foreground))",
+          DEFAULT: withAlpha("--muted"),
+          foreground: withAlpha("--muted-foreground"),
         },
-
         accent: {
-          DEFAULT: "hsl(var(--accent))",
-          foreground: "hsl(var(--accent-foreground))",
+          DEFAULT: withAlpha("--accent"),
+          foreground: withAlpha("--accent-foreground"),
         },
 
         clear: {
-          DEFAULT: "#FAFAFA",
+          DEFAULT: withAlpha("--clear"),
         },
-
-        prism: {
-          DEFAULT: "#4A90E2",
-          light: "#EAF3FF",
-          dark: "#2F73C8",
+        navy: {
+          DEFAULT: withAlpha("--navy"),
+          dark: withAlpha("--navy-dark"),
+          light: withAlpha("--navy-light"),
         },
-
-        coral: {
-          DEFAULT: "#FF8C73",
-          light: "#FFF0EC",
-          dark: "#F06F56",
+        text: {
+          DEFAULT: withAlpha("--neutral-text"),
+          muted: withAlpha("--neutral-muted"),
         },
-
-        indigo: {
-          DEFAULT: "#2C3E50",
-          light: "#3E5871",
-          dark: "#1F2D3A",
+        surface: {
+          DEFAULT: withAlpha("--surface"),
         },
-
+        lavender: {
+          DEFAULT: withAlpha("--lavender"),
+          light: withAlpha("--lavender-light"),
+          dark: withAlpha("--lavender-dark"),
+        },
         line: {
-          DEFAULT: "#E0E0E0",
+          DEFAULT: withAlpha("--line"),
         },
-
-        mist: {
-          DEFAULT: "#F3F6FA",
-        },
-
-        slate: {
-          DEFAULT: "#667085",
-        },
-
         disabled: {
-          DEFAULT: "#E0E0E0",
+          DEFAULT: withAlpha("--disabled"),
+        },
+        disabledText: {
+          DEFAULT: withAlpha("--disabled-text"),
         },
 
-        disabledText: {
-          DEFAULT: "#98A2B3",
+        /**
+         * 기존 코드 호환용 alias
+         */
+        indigo: {
+          DEFAULT: withAlpha("--neutral-text"),
+          light: withAlpha("--navy-light"),
+          dark: withAlpha("--neutral-text"),
+        },
+        prism: {
+          DEFAULT: withAlpha("--lavender"),
+          light: withAlpha("--lavender-light"),
+          dark: withAlpha("--lavender-dark"),
+        },
+        coral: {
+          DEFAULT: withAlpha("--navy"),
+          light: withAlpha("--lavender-light"),
+          dark: withAlpha("--navy-dark"),
+        },
+        mist: {
+          DEFAULT: withAlpha("--surface"),
+        },
+        slate: {
+          DEFAULT: withAlpha("--neutral-muted"),
+        },
+
+        /**
+         * 예전 gold 클래스가 남아있어도 깨지지 않게 유지
+         */
+        gold: {
+          DEFAULT: withAlpha("--lavender"),
+          light: withAlpha("--lavender-light"),
+          dark: withAlpha("--lavender-dark"),
         },
       },
       borderRadius: {
@@ -93,7 +113,10 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       backgroundImage: {
-        "prism-gradient": "linear-gradient(135deg, #4A90E2, #FF8C73)",
+        "broadcast-gradient":
+          "linear-gradient(135deg, hsl(var(--navy)), hsl(var(--lavender)))",
+        "prism-gradient":
+          "linear-gradient(135deg, hsl(var(--navy)), hsl(var(--lavender)))",
       },
       keyframes: {
         "accordion-down": {
