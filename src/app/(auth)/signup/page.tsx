@@ -6,6 +6,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+
 import type { ApiError } from "@/lib/api";
 import { authApi } from "@/lib/api";
 import { getAuthUser } from "@/lib/auth";
@@ -13,11 +14,21 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mic } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 
 const schema = z.object({
-  name: z.string().trim().min(1, "이름을 입력해 주세요.").max(60, "이름은 60자 이하로 입력해 주세요."),
+  name: z
+    .string()
+    .trim()
+    .min(1, "이름을 입력해 주세요.")
+    .max(60, "이름은 60자 이하로 입력해 주세요."),
   email: z.string().trim().toLowerCase().email("유효한 이메일을 입력해 주세요."),
   password: z
     .string()
@@ -26,8 +37,13 @@ const schema = z.object({
     .regex(/[A-Z]/, "대문자를 포함해야 합니다.")
     .regex(/[0-9]/, "숫자를 포함해야 합니다."),
   user_type: z.enum(["customer", "freelancer"]),
-  phone: z.string().trim().max(30, "연락처는 30자 이하로 입력해 주세요.").optional(),
+  phone: z
+    .string()
+    .trim()
+    .max(30, "연락처는 30자 이하로 입력해 주세요.")
+    .optional(),
 });
+
 type FormValues = z.infer<typeof schema>;
 
 const ROLE_OPTIONS = [
@@ -40,103 +56,192 @@ export default function SignupPage() {
   const { setAuth, refreshUser } = useAuth();
   const [serverError, setServerError] = useState("");
 
-  const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<FormValues>({
+  const {
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    formState: { errors, isSubmitting },
+  } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: { user_type: "customer" },
   });
+
   const selectedRole = watch("user_type");
 
   const onSubmit = async (values: FormValues) => {
     setServerError("");
+
     try {
       const res = await authApi.signup(values);
-      const user = getAuthUser(res.data) ?? await refreshUser();
+      const user = getAuthUser(res.data) ?? (await refreshUser());
 
       if (!user) {
         throw new Error("가입 사용자 정보를 확인하지 못했습니다.");
       }
 
       setAuth(user);
-      router.push(user.user_type === "customer" ? "/customer/requests" : "/freelancer/profile");
+      router.push(
+        user.user_type === "customer"
+          ? "/customer/requests"
+          : "/freelancer/profile"
+      );
     } catch (err) {
       const apiErr = err as ApiError<{ error: { message: string } }>;
-      setServerError(apiErr.response?.data?.error?.message || "회원가입에 실패했습니다.");
+
+      setServerError(
+        apiErr.response?.data?.error?.message || "회원가입에 실패했습니다."
+      );
     }
   };
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="text-center space-y-3">
-        <div className="w-12 h-12 bg-navy rounded-xl flex items-center justify-center mx-auto">
-          <Mic className="h-6 w-6 text-gold" />
-        </div>
-        <CardTitle className="text-2xl">회원가입</CardTitle>
-        <CardDescription>프리마이크에 가입하고 시작하세요</CardDescription>
+    <Card className="w-full max-w-[520px] rounded-2xl border-line bg-card shadow-sm">
+      <CardHeader className="space-y-2 px-8 pb-4 pt-8 text-center">
+        <CardTitle className="text-[32px] font-extrabold tracking-[-0.03em] text-text">
+          회원가입
+        </CardTitle>
+        <CardDescription className="text-[16px] text-slate">
+          프리마이크에 가입하고 시작하세요
+        </CardDescription>
       </CardHeader>
 
       <form onSubmit={handleSubmit(onSubmit)}>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-5 px-8">
           {serverError && (
-            <p role="alert" className="text-sm text-destructive bg-destructive/5 border border-destructive/20 rounded-md px-3 py-2">
+            <p
+              role="alert"
+              className="rounded-md border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive"
+            >
               {serverError}
             </p>
           )}
 
-          {/* 역할 선택 */}
           <fieldset>
-            <legend className="text-sm font-medium mb-2">역할 선택</legend>
+            <legend className="mb-2 text-[15px] font-bold text-text">
+              역할 선택
+            </legend>
+
             <div className="grid grid-cols-2 gap-2">
               {ROLE_OPTIONS.map((opt) => (
                 <button
                   key={opt.value}
                   type="button"
-                  onClick={() => setValue("user_type", opt.value)}
-                  className={`p-3 rounded-lg border text-left transition-all ${
+                  onClick={() =>
+                    setValue("user_type", opt.value, {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    })
+                  }
+                  className={`rounded-xl border p-3 text-left transition-all ${
                     selectedRole === opt.value
-                      ? "border-navy bg-navy/5 ring-1 ring-navy"
-                      : "border-border hover:border-muted-foreground"
+                      ? "border-navy bg-lavender-light ring-1 ring-navy/20"
+                      : "border-line bg-card hover:border-lavender"
                   }`}
                 >
-                  <p className="font-medium text-sm">{opt.label}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{opt.desc}</p>
+                  <p className="text-[15px] font-bold text-text">{opt.label}</p>
+                  <p className="mt-1 text-[13px] text-slate">{opt.desc}</p>
                 </button>
               ))}
             </div>
           </fieldset>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="name">이름</Label>
-            <Input id="name" placeholder="홍길동" autoComplete="name" {...register("name")} />
-            {errors.name && <p role="alert" className="text-xs text-destructive">{errors.name.message}</p>}
+          <div className="space-y-2">
+            <Label htmlFor="name" className="text-[15px] font-bold text-text">
+              이름
+            </Label>
+            <Input
+              id="name"
+              placeholder="홍길동"
+              autoComplete="name"
+              className="h-12 rounded-xl text-[16px]"
+              {...register("name")}
+            />
+            {errors.name && (
+              <p role="alert" className="text-xs text-destructive">
+                {errors.name.message}
+              </p>
+            )}
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="email">이메일</Label>
-            <Input id="email" type="email" placeholder="hello@example.com" autoComplete="email" {...register("email")} />
-            {errors.email && <p role="alert" className="text-xs text-destructive">{errors.email.message}</p>}
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-[15px] font-bold text-text">
+              이메일
+            </Label>
+            <Input
+              id="email"
+              type="email"
+              placeholder="hello@example.com"
+              autoComplete="email"
+              className="h-12 rounded-xl text-[16px]"
+              {...register("email")}
+            />
+            {errors.email && (
+              <p role="alert" className="text-xs text-destructive">
+                {errors.email.message}
+              </p>
+            )}
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="phone">연락처 (선택)</Label>
-            <Input id="phone" type="tel" placeholder="010-0000-0000" autoComplete="tel" {...register("phone")} />
-            {errors.phone && <p role="alert" className="text-xs text-destructive">{errors.phone.message}</p>}
+          <div className="space-y-2">
+            <Label htmlFor="phone" className="text-[15px] font-bold text-text">
+              연락처 <span className="font-medium text-slate">(선택)</span>
+            </Label>
+            <Input
+              id="phone"
+              type="tel"
+              placeholder="010-0000-0000"
+              autoComplete="tel"
+              className="h-12 rounded-xl text-[16px]"
+              {...register("phone")}
+            />
+            {errors.phone && (
+              <p role="alert" className="text-xs text-destructive">
+                {errors.phone.message}
+              </p>
+            )}
           </div>
 
-          <div className="space-y-1.5">
-            <Label htmlFor="password">비밀번호</Label>
-            <Input id="password" type="password" autoComplete="new-password" {...register("password")} />
-            {errors.password && <p role="alert" className="text-xs text-destructive">{errors.password.message}</p>}
-            <p className="text-xs text-muted-foreground">8자 이상, 대문자·숫자 포함</p>
+          <div className="space-y-2">
+            <Label
+              htmlFor="password"
+              className="text-[15px] font-bold text-text"
+            >
+              비밀번호
+            </Label>
+            <Input
+              id="password"
+              type="password"
+              autoComplete="new-password"
+              className="h-12 rounded-xl text-[16px]"
+              {...register("password")}
+            />
+            {errors.password && (
+              <p role="alert" className="text-xs text-destructive">
+                {errors.password.message}
+              </p>
+            )}
+            <p className="text-[13px] text-slate">
+              8자 이상, 대문자·숫자 포함
+            </p>
           </div>
         </CardContent>
 
-        <CardFooter className="flex flex-col gap-3">
-          <Button type="submit" className="w-full bg-navy text-white hover:bg-navy-light" disabled={isSubmitting}>
+        <CardFooter className="flex flex-col gap-4 px-8 pb-8 pt-2">
+          <Button
+            type="submit"
+            variant="primaryCta"
+            className="h-12 w-full text-[17px]"
+            disabled={isSubmitting}
+          >
             {isSubmitting ? "가입 중..." : "회원가입"}
           </Button>
-          <p className="text-sm text-muted-foreground text-center">
+
+          <p className="text-center text-[15px] text-slate">
             이미 계정이 있으신가요?{" "}
-            <Link href="/login" className="text-foreground font-medium hover:underline">로그인</Link>
+            <Link href="/login" className="font-bold text-text hover:underline">
+              로그인
+            </Link>
           </p>
         </CardFooter>
       </form>

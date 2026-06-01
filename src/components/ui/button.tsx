@@ -44,10 +44,10 @@ const buttonVariants = cva(
           "cursor-not-allowed bg-disabled text-disabledText",
       },
       size: {
-        default: "h-12 px-5 py-3 text-[17px]",
-        sm: "h-10 rounded-xl px-5 text-[17px]",
-        lg: "h-14 rounded-xl px-10 text-[21px]",
-        icon: "h-11 w-11 rounded-xl",
+        default: "h-11 px-5 py-2.5 text-[15px]",
+        sm: "h-9 rounded-xl px-4 text-[15px]",
+        lg: "h-12 rounded-xl px-8 text-[17px]",
+        icon: "h-10 w-10 rounded-xl",
       },
     },
     defaultVariants: {
