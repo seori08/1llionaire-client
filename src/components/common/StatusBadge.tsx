@@ -1,10 +1,10 @@
 import { Badge } from "@/components/ui/badge";
 import {
   FreelancerStatus, RequestStatus, BookingStatus,
-  PaymentStatus, SettlementStatus, ReviewStatus,
+  PaymentStatus, SettlementStatus, ReviewStatus, EscrowStatus, ContractStatus,
   FREELANCER_STATUS_LABEL, REQUEST_STATUS_LABEL,
   BOOKING_STATUS_LABEL, PAYMENT_STATUS_LABEL,
-  SETTLEMENT_STATUS_LABEL, REVIEW_STATUS_LABEL,
+  SETTLEMENT_STATUS_LABEL, REVIEW_STATUS_LABEL, ESCROW_STATUS_LABEL, CONTRACT_STATUS_LABEL,
 } from "@/types";
 
 type BadgeVariant = "default" | "secondary" | "destructive" | "outline" | "success" | "warning" | "info" | "gold";
@@ -41,6 +41,12 @@ const settlementVariant: Record<SettlementStatus, BadgeVariant> = {
 const reviewVariant: Record<ReviewStatus, BadgeVariant> = {
   pending: "warning", published: "success", hidden: "secondary", reported: "destructive",
 };
+const escrowVariant: Record<EscrowStatus, BadgeVariant> = {
+  none: "secondary", held: "warning", released: "success", refunded: "secondary",
+};
+const contractVariant: Record<ContractStatus, BadgeVariant> = {
+  draft: "secondary", pending_customer: "warning", pending_freelancer: "warning", fully_signed: "success", voided: "destructive",
+};
 
 export function FreelancerStatusBadge({ status }: { status: FreelancerStatus }) {
   return <Badge variant={freelancerVariant[status]}>{FREELANCER_STATUS_LABEL[status]}</Badge>;
@@ -59,6 +65,12 @@ export function SettlementStatusBadge({ status }: { status: SettlementStatus }) 
 }
 export function ReviewStatusBadge({ status }: { status: ReviewStatus }) {
   return <Badge variant={reviewVariant[status]}>{REVIEW_STATUS_LABEL[status]}</Badge>;
+}
+export function EscrowStatusBadge({ status }: { status: EscrowStatus }) {
+  return <Badge variant={escrowVariant[status]}>{ESCROW_STATUS_LABEL[status]}</Badge>;
+}
+export function ContractStatusBadge({ status }: { status: ContractStatus }) {
+  return <Badge variant={contractVariant[status]}>{CONTRACT_STATUS_LABEL[status]}</Badge>;
 }
 export function UserRoleBadge({ role }: { role: "customer" | "freelancer" | "admin" }) {
   const map = { customer: "고객", freelancer: "프리랜서", admin: "관리자" };

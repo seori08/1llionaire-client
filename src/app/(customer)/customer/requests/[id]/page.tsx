@@ -11,6 +11,7 @@ import { LoadingState, ErrorState } from "@/components/common/States";
 import { ArrowLeft, Users, Calendar, MapPin, Banknote } from "lucide-react";
 import { formatDate, formatPrice } from "@/lib/utils";
 import { EventRequest } from "@/types";
+import { PricingAnalysisCard } from "@/components/ai/PricingAnalysisCard";
 
 export default function RequestDetailPage({ params }: { params: { id: string } }) {
   const { id } = params;
@@ -52,6 +53,8 @@ export default function RequestDetailPage({ params }: { params: { id: string } }
             <div><p className="text-muted-foreground">진행 시간</p><p className="font-medium">{req.start_time} ~ {req.end_time}</p></div>
           </CardContent>
         </Card>
+
+        <PricingAnalysisCard request={req} />
 
         {req.description && (
           <Card>

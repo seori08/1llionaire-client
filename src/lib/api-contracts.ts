@@ -7,6 +7,12 @@ import type {
   ChatMessage,
   ChatRoom,
   ChatRoomDetail,
+  PricingMarketData,
+  PricingAnalysis,
+  FreelancerReview,
+  EscrowStatus,
+  ContractStatus,
+  Contract,
   EventRequest,
   FreelancerProfile,
   PaymentStatus,
@@ -92,6 +98,7 @@ export interface AdminPaymentRow {
   platform_fee: number;
   payment_status: PaymentStatus;
   booking_status: BookingStatus;
+  escrow_status?: EscrowStatus;
   customer?: Pick<User, "name" | "email">;
   freelancer?: Pick<FreelancerProfile, "display_name">;
 }
@@ -105,6 +112,9 @@ export interface AdminSettlementRow {
   freelancer_amount: number;
   payment_status: PaymentStatus;
   settlement_status: SettlementStatus;
+  escrow_status?: EscrowStatus;
+  escrow_held_at?: string | null;
+  escrow_released_at?: string | null;
   freelancer?: Pick<FreelancerProfile, "id" | "display_name">;
 }
 
@@ -144,6 +154,9 @@ export interface FreelancerSettlementRow {
   booking_status: BookingStatus;
   payment_status: PaymentStatus;
   settlement_status: SettlementStatus;
+  escrow_status?: EscrowStatus;
+  escrow_held_at?: string | null;
+  escrow_released_at?: string | null;
 }
 
 export interface PaymentPreparePayload {
@@ -161,6 +174,7 @@ export interface PaymentConfirmPayload {
   method?: string;
   approved_at?: string;
   status: "DONE";
+  escrow_status?: EscrowStatus;
 }
 
 export type TossPaymentStatus =
@@ -196,7 +210,38 @@ export interface PaymentDetail {
     | "customer_id"
     | "booking_status"
     | "payment_status"
+    | "escrow_status"
+    | "escrow_held_at"
+    | "escrow_released_at"
   >;
+}
+
+
+export interface PricingAnalysisRequest {
+  event_type: string;
+  region: string;
+  categories: string[];
+  career_years_min?: number;
+  career_years_max?: number;
+  budget_min?: number;
+  budget_max?: number;
+  duration_hours?: number;
+  request_id?: string;
+}
+
+export interface PricingAnalysisResult {
+  analysis: PricingAnalysis;
+  market_data: PricingMarketData;
+}
+
+export interface FreelancerReviewCreatePayload {
+  booking_id: string;
+  professionalism_score: number;
+  communication_score: number;
+  payment_promptness_score: number;
+  respect_score: number;
+  would_work_again: boolean;
+  comment?: string;
 }
 
 export type StatusUpdatePayload = Partial<{
@@ -213,6 +258,12 @@ export type {
   ChatMessage,
   ChatRoom,
   ChatRoomDetail,
+  PricingMarketData,
+  PricingAnalysis,
+  FreelancerReview,
+  EscrowStatus,
+  ContractStatus,
+  Contract,
   EventRequest,
   FreelancerProfile,
   PaymentStatus,

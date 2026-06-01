@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { adminApi } from "@/lib/api";
+import { adminApi, paymentApi } from "@/lib/api";
 import { queryKeys } from "@/lib/queryKeys";
 import { Card, CardContent } from "@/components/ui/card";
-import { PaymentStatusBadge } from "@/components/common/StatusBadge";
+import { Button } from "@/components/ui/button";
+import { PaymentStatusBadge, EscrowStatusBadge } from "@/components/common/StatusBadge";
 import { LoadingState, EmptyState, ErrorState } from "@/components/common/States";
 import { Pagination } from "@/components/common/Pagination";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
@@ -27,6 +28,15 @@ export default function AdminPaymentsPage() {
 
   const items = data?.data?.data?.items ?? [];
   const pagination = data?.data?.data?.pagination;
+
+  const releaseMutation = useMutation({
+    mutationFn: (bookingId: string) => paymentApi.releaseEscrow(bookingId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminPayments });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminSettlements });
+      queryClient.invalidateQueries({ queryKey: queryKeys.adminDashboard });
+    },
+  });
 
   const mutation = useMutation({
     mutationFn: ({ id, status }: { id: string; status: PaymentStatus }) =>
@@ -56,24 +66,38 @@ export default function AdminPaymentsPage() {
       {!isLoading && !isError && items.length === 0 && <EmptyState title="결제 내역이 없습니다" />}
 
       <div className="space-y-3">
-        {items.map((item: { id: string; event_title: string; event_date: string; final_price: number; payment_status: PaymentStatus; customer?: { name: string }; freelancer?: { display_name?: string } }) => (
+        {items.map((item: { id: string; event_title: string; event_date: string; final_price: number; payment_status: PaymentStatus; booking_status?: string; escrow_status?: "none" | "held" | "released" | "refunded"; customer?: { name: string }; freelancer?: { display_name?: string } }) => (
           <Card key={item.id}>
             <CardContent className="p-5 flex items-center justify-between gap-4">
               <div className="min-w-0">
-                <div className="mb-1"><PaymentStatusBadge status={item.payment_status} /></div>
+                <div className="mb-1 flex flex-wrap gap-2"><PaymentStatusBadge status={item.payment_status} />{item.escrow_status && <EscrowStatusBadge status={item.escrow_status} />}</div>
                 <h2 className="font-semibold truncate">{item.event_title}</h2>
                 <p className="text-sm text-muted-foreground">
                   {item.customer?.name} · {formatDate(item.event_date)} · {formatPrice(item.final_price)}
                 </p>
               </div>
-              <select
-                className="h-8 px-2 rounded-md border border-input bg-background text-xs shrink-0"
-                value={item.payment_status}
-                onChange={(e) => setConfirm({ id: item.id, value: e.target.value as PaymentStatus })}
-                aria-label="결제 상태 변경"
-              >
-                {PAYMENT_STATUSES.map((s) => <option key={s} value={s}>{PAYMENT_STATUS_LABEL[s]}</option>)}
-              </select>
+              <div className="flex shrink-0 flex-col items-end gap-2">
+                <select
+                  className="h-8 px-2 rounded-md border border-input bg-background text-xs"
+                  value={item.payment_status}
+                  onChange={(e) => setConfirm({ id: item.id, value: e.target.value as PaymentStatus })}
+                  aria-label="결제 상태 변경"
+                >
+                  {PAYMENT_STATUSES.map((s) => <option key={s} value={s}>{PAYMENT_STATUS_LABEL[s]}</option>)}
+                </select>
+                {item.booking_status === "completed" && item.escrow_status === "held" && (
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="text-xs"
+                    onClick={() => releaseMutation.mutate(item.id)}
+                    disabled={releaseMutation.isPending}
+                  >
+                    에스크로 정산
+                  </Button>
+                )}
+              </div>
             </CardContent>
           </Card>
         ))}

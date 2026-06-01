@@ -27,4 +27,7 @@ export const paymentApi = {
 
   getByBookingId: (bookingId: string) =>
     http.get<BackendResponse<PaymentDetail>>(`/api/payments/${bookingId}`),
+
+  releaseEscrow: (bookingId: string) =>
+    http.post<BackendResponse<unknown>>(`/api/payments/escrow/release/${bookingId}`),
 };

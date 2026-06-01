@@ -7,12 +7,12 @@ import { bookingApi } from "@/lib/api";
 import { queryKeys } from "@/lib/queryKeys";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookingStatusBadge, PaymentStatusBadge } from "@/components/common/StatusBadge";
+import { BookingStatusBadge, PaymentStatusBadge, EscrowStatusBadge } from "@/components/common/StatusBadge";
 import { LoadingState, EmptyState, ErrorState } from "@/components/common/States";
 import { Pagination } from "@/components/common/Pagination";
 import { formatDate, formatPrice } from "@/lib/utils";
 import { Booking } from "@/types";
-import { MessageSquare } from "lucide-react";
+import { FileText, MessageSquare } from "lucide-react";
 
 export default function FreelancerBookingsPage() {
   const [page, setPage] = useState(1);
@@ -56,6 +56,7 @@ export default function FreelancerBookingsPage() {
               <div className="flex flex-wrap gap-2 mb-2">
                 <BookingStatusBadge status={b.booking_status} />
                 <PaymentStatusBadge status={b.payment_status} />
+                {b.escrow_status && <EscrowStatusBadge status={b.escrow_status} />}
               </div>
               <h2 className="font-semibold">{b.event_title}</h2>
               <p className="text-sm text-muted-foreground mt-1">{formatDate(b.event_date)} · {formatPrice(b.freelancer_amount)} (정산 예정)</p>
@@ -66,6 +67,19 @@ export default function FreelancerBookingsPage() {
                       <MessageSquare className="h-3.5 w-3.5" />
                       상담하기
                     </Button>
+                  </Link>
+                )}
+                {["confirmed", "completed"].includes(b.booking_status) && (
+                  <Link href={`/contracts/${b.id}`}>
+                    <Button size="sm" variant="outline" className="gap-1 text-xs">
+                      <FileText className="h-3.5 w-3.5" />
+                      계약서
+                    </Button>
+                  </Link>
+                )}
+                {b.booking_status === "completed" && (
+                  <Link href={`/freelancer/reviews/new?bookingId=${b.id}`}>
+                    <Button size="sm" variant="outline" className="text-xs">의뢰인 후기 작성</Button>
                   </Link>
                 )}
                 {b.booking_status === "pending" && (

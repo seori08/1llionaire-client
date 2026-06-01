@@ -11,3 +11,6 @@ export { adminApi } from "./apis/admin";
 export { paymentApi } from "./apis/payments";
 export { notificationApi } from "./apis/notifications";
 export { chatApi } from "./apis/chat";
+export { aiApi } from "./apis/ai";
+export { contractApi } from "./apis/contracts";
+export { freelancerReviewApi } from "./apis/freelancer-reviews";

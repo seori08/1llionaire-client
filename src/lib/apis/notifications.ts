@@ -1,6 +1,9 @@
 import type { BackendListResponse, BackendResponse, NotificationItem } from "../api-contracts";
 import http, { toQueryParams } from "../http";
 
+const rawBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+const baseURL = rawBaseUrl.replace(/\/+$/, "");
+
 export const notificationApi = {
   getNotifications: (params?: Record<string, unknown>) =>
     http.get<BackendListResponse<NotificationItem>>("/api/notifications", {
@@ -15,4 +18,9 @@ export const notificationApi = {
 
   markAllAsRead: () =>
     http.patch<BackendResponse<null>>("/api/notifications/read-all"),
+
+  deleteNotification: (id: string) =>
+    http.delete<BackendResponse<null>>(`/api/notifications/${id}`),
+
+  getStreamUrl: () => `${baseURL}/api/notifications/stream`,
 };

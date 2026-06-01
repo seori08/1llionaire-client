@@ -81,6 +81,10 @@ function LoginContent() {
 
   const next = searchParams.get("next");
   const signupHref = next ? `/signup?next=${encodeURIComponent(next)}` : "/signup";
+  const oauthError = searchParams.get("error");
+  const startOAuth = (provider: "kakao" | "google") => {
+    window.location.href = authApi.getOAuthStartUrl(provider, "customer");
+  };
 
   return (
     <Card className="w-full max-w-[440px] rounded-2xl border-line bg-card shadow-sm">
@@ -95,12 +99,12 @@ function LoginContent() {
 
       <form onSubmit={handleSubmit(onSubmit)}>
         <CardContent className="space-y-5 px-8">
-          {serverError && (
+          {(serverError || oauthError) && (
             <p
               role="alert"
               className="rounded-md border border-destructive/20 bg-destructive/5 px-3 py-2 text-sm text-destructive"
             >
-              {serverError}
+              {serverError || oauthError}
             </p>
           )}
 
@@ -170,6 +174,15 @@ function LoginContent() {
           >
             {isSubmitting ? "로그인 중..." : "로그인"}
           </Button>
+
+          <div className="grid w-full grid-cols-2 gap-2">
+            <Button type="button" variant="outline" className="h-11" onClick={() => startOAuth("kakao")}>
+              카카오로 계속
+            </Button>
+            <Button type="button" variant="outline" className="h-11" onClick={() => startOAuth("google")}>
+              Google로 계속
+            </Button>
+          </div>
 
           <p className="text-center text-[15px] text-slate">
             계정이 없으신가요?{" "}

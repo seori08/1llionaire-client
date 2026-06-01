@@ -103,6 +103,9 @@ function SignupContent() {
 
   const next = searchParams.get("next");
   const loginHref = next ? `/login?next=${encodeURIComponent(next)}` : "/login";
+  const startOAuth = (provider: "kakao" | "google") => {
+    window.location.href = authApi.getOAuthStartUrl(provider, selectedRole);
+  };
 
   return (
     <Card className="w-full max-w-[520px] rounded-2xl border-line bg-card shadow-sm">
@@ -245,6 +248,15 @@ function SignupContent() {
           >
             {isSubmitting ? "가입 중..." : "회원가입"}
           </Button>
+
+          <div className="grid w-full grid-cols-2 gap-2">
+            <Button type="button" variant="outline" className="h-11" onClick={() => startOAuth("kakao")}>
+              카카오로 가입
+            </Button>
+            <Button type="button" variant="outline" className="h-11" onClick={() => startOAuth("google")}>
+              Google로 가입
+            </Button>
+          </div>
 
           <p className="text-center text-[15px] text-slate">
             이미 계정이 있으신가요?{" "}

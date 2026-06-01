@@ -220,6 +220,8 @@ export type BookingStatus =
   | "disputed";
 export type PaymentStatus = "unpaid" | "deposit_paid" | "fully_paid" | "refunded" | "failed";
 export type SettlementStatus = "pending" | "scheduled" | "completed" | "held" | "failed";
+export type EscrowStatus = "none" | "held" | "released" | "refunded";
+export type ContractStatus = "draft" | "pending_customer" | "pending_freelancer" | "fully_signed" | "voided";
 
 export interface Booking {
   id: string;
@@ -236,6 +238,9 @@ export interface Booking {
   booking_status: BookingStatus;
   payment_status: PaymentStatus;
   settlement_status: SettlementStatus;
+  escrow_status?: EscrowStatus;
+  escrow_held_at?: string | null;
+  escrow_released_at?: string | null;
   cancel_reason?: string;
   created_at: string;
   customer?: Pick<User, "id" | "name">;
@@ -330,6 +335,64 @@ export interface ChatRoomDetail {
   messages: ChatMessage[];
 }
 
+
+// ─── 계약서/에스크로/AI/의뢰인 후기 ─────────────────────────
+
+export interface Contract {
+  id: string;
+  booking_id: string;
+  content_json: Record<string, unknown>;
+  status: ContractStatus;
+  customer_signed_at?: string | null;
+  customer_signature_hash?: string | null;
+  freelancer_signed_at?: string | null;
+  freelancer_signature_hash?: string | null;
+  fully_signed_at?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface PricingAnalysis {
+  recommended_min: number;
+  recommended_max: number;
+  recommended_center: number;
+  confidence: "high" | "medium" | "low";
+  rationale: string;
+  market_context: string;
+  factors: string[];
+  risk_notes: string[];
+  generated_at: string;
+}
+
+export interface PricingMarketData {
+  sample_count: number;
+  avg_price_min: number;
+  avg_price_max: number;
+  market_min: number;
+  market_max: number;
+  avg_rating: string;
+}
+
+export interface FreelancerReview {
+  id: string;
+  booking_id: string;
+  freelancer_id: string;
+  customer_id: string;
+  professionalism_score: number;
+  communication_score: number;
+  payment_promptness_score: number;
+  respect_score: number;
+  total_score: number;
+  would_work_again: boolean;
+  comment?: string | null;
+  status: ReviewStatus;
+  created_at: string;
+  updated_at?: string;
+  freelancer?: Pick<FreelancerProfile, "display_name">;
+  customer?: Pick<User, "name">;
+  booking?: Pick<Booking, "event_title" | "event_date">;
+}
+
 // ─── 상태 레이블 ─────────────────────────────────────────────
 
 export const FREELANCER_STATUS_LABEL: Record<FreelancerStatus, string> = {
@@ -380,6 +443,21 @@ export const SETTLEMENT_STATUS_LABEL: Record<SettlementStatus, string> = {
   completed: "정산 완료",
   held: "정산 보류",
   failed: "정산 실패",
+};
+
+export const ESCROW_STATUS_LABEL: Record<EscrowStatus, string> = {
+  none: "에스크로 없음",
+  held: "에스크로 보관",
+  released: "정산 완료",
+  refunded: "환불 완료",
+};
+
+export const CONTRACT_STATUS_LABEL: Record<ContractStatus, string> = {
+  draft: "작성 중",
+  pending_customer: "고객 서명 대기",
+  pending_freelancer: "프리랜서 서명 대기",
+  fully_signed: "서명 완료",
+  voided: "무효",
 };
 
 export const REVIEW_STATUS_LABEL: Record<ReviewStatus, string> = {

@@ -1,7 +1,7 @@
 const rawBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
 const baseURL = rawBaseUrl.replace(/\/+$/, "");
 
-const DEFAULT_TIMEOUT_MS = 10000;
+const DEFAULT_TIMEOUT_MS = 45000;
 
 type HttpMethod = "GET" | "POST" | "PATCH" | "DELETE";
 

@@ -16,6 +16,8 @@ export const queryKeys = {
   myReviews: ["customer", "reviews", "me"] as const,
   notifications: ["notifications"] as const,
   notificationUnreadCount: ["notifications", "unread-count"] as const,
+  contract: (bookingId: string) => ["contracts", bookingId] as const,
+  pricingAnalysis: (requestId: string) => ["ai", "pricing-analysis", requestId] as const,
   chatRooms: ["chat", "rooms"] as const,
   chatRoomsPage: (page: number) => ["chat", "rooms", { page }] as const,
   chatRoomMessages: (roomId: string) => ["chat", "rooms", roomId, "messages"] as const,
@@ -28,6 +30,8 @@ export const queryKeys = {
   freelancerBookingsPage: (page: number) => ["freelancer", "bookings", { page }] as const,
   freelancerSettlements: ["freelancer", "settlements"] as const,
   freelancerSettlementsPage: (page: number) => ["freelancer", "settlements", { page }] as const,
+  freelancerClientReviews: ["freelancer", "client-reviews"] as const,
+  freelancerClientReviewsPage: (page: number) => ["freelancer", "client-reviews", { page }] as const,
 
   adminDashboard: ["admin", "dashboard"] as const,
   adminFreelancers: ["admin", "freelancers"] as const,

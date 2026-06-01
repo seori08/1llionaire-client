@@ -81,6 +81,7 @@ export function FreelancerNav() {
         { href: "/freelancer/bookings", label: "예약 관리", icon: <Calendar className="h-4 w-4" /> },
         { href: "/freelancer/chats", label: "상담", icon: <MessageSquare className="h-4 w-4" /> },
         { href: "/freelancer/settlements", label: "정산 내역", icon: <Wallet className="h-4 w-4" /> },
+        { href: "/freelancer/reviews", label: "의뢰인 후기", icon: <Star className="h-4 w-4" /> },
         { href: "/notifications", label: "알림", icon: <Bell className="h-4 w-4" /> },
         { href: "/settings", label: "계정 설정", icon: <Settings className="h-4 w-4" /> },
       ]}

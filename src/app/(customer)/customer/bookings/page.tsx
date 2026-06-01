@@ -7,10 +7,10 @@ import { bookingApi } from "@/lib/api";
 import { queryKeys } from "@/lib/queryKeys";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookingStatusBadge, PaymentStatusBadge } from "@/components/common/StatusBadge";
+import { BookingStatusBadge, PaymentStatusBadge, EscrowStatusBadge } from "@/components/common/StatusBadge";
 import { LoadingState, EmptyState, ErrorState } from "@/components/common/States";
 import { Pagination } from "@/components/common/Pagination";
-import { MessageSquare } from "lucide-react";
+import { FileText, MessageSquare } from "lucide-react";
 import { formatDate, formatPrice } from "@/lib/utils";
 import { Booking } from "@/types";
 
@@ -47,6 +47,7 @@ export default function CustomerBookingsPage() {
                   <div className="flex flex-wrap items-center gap-2 mb-1">
                     <BookingStatusBadge status={booking.booking_status} />
                     <PaymentStatusBadge status={booking.payment_status} />
+                    {booking.escrow_status && <EscrowStatusBadge status={booking.escrow_status} />}
                     <span className="text-xs text-muted-foreground">{formatDate(booking.event_date)}</span>
                   </div>
                   <h2 className="font-semibold truncate">{booking.event_title}</h2>
@@ -61,6 +62,14 @@ export default function CustomerBookingsPage() {
                       <Button size="sm" variant="outline" className="gap-1 text-xs">
                         <MessageSquare className="h-3.5 w-3.5" />
                         상담하기
+                      </Button>
+                    </Link>
+                  )}
+                  {["confirmed", "completed"].includes(booking.booking_status) && (
+                    <Link href={`/contracts/${booking.id}`}>
+                      <Button size="sm" variant="outline" className="gap-1 text-xs">
+                        <FileText className="h-3.5 w-3.5" />
+                        계약서
                       </Button>
                     </Link>
                   )}

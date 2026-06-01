@@ -2,7 +2,17 @@ import type { User } from "@/types";
 import type { AuthSession, AuthUser, BackendResponse } from "../api-contracts";
 import http from "../http";
 
+const rawBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
+const baseURL = rawBaseUrl.replace(/\/+$/, "");
+
+export type OAuthProvider = "kakao" | "google";
+
 export const authApi = {
+  getOAuthStartUrl: (provider: OAuthProvider, userType: "customer" | "freelancer" = "customer", redirectOrigin?: string) => {
+    const origin = redirectOrigin || (typeof window !== "undefined" ? window.location.origin : process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000");
+    const params = new URLSearchParams({ user_type: userType, redirect_uri: origin });
+    return `${baseURL}/api/auth/oauth/${provider}?${params.toString()}`;
+  },
   signup: (data: {
     name: string;
     email: string;
