@@ -3,14 +3,16 @@ import Link from "next/link";
 import Image from "next/image";
 import { publicApi } from "@/lib/api";
 import { Badge } from "@/components/ui/badge";
-import { Star, MapPin, SlidersHorizontal, X, MessageSquareText } from "lucide-react";
+import { Star, MapPin, SlidersHorizontal, X, MessageSquareText, ChevronLeft, ChevronRight } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
-import { FreelancerProfile } from "@/types";
+import { FreelancerProfile, Pagination } from "@/types";
 
 export const metadata: Metadata = {
   title: "진행자 찾기",
   description: "검증된 전문 MC·아나운서·쇼호스트 목록을 확인하세요.",
 };
+
+const PAGE_SIZE = 20;
 
 const CATEGORIES = [
   { value: "기업행사 MC", label: "기업행사MC" },
@@ -49,6 +51,11 @@ function getSort(searchParams: SearchParams): SortValue {
   return SORT_OPTIONS.some((option) => option.value === sort) ? (sort as SortValue) : "popular";
 }
 
+function getPage(searchParams: SearchParams) {
+  const page = Number(getSingleParam(searchParams, "page") ?? "1");
+  return Number.isFinite(page) && page > 0 ? Math.floor(page) : 1;
+}
+
 function getCategory(searchParams: SearchParams) {
   const category = getSingleParam(searchParams, "category");
 
@@ -68,6 +75,7 @@ function normalizeFreelancerSearchParams(searchParams: SearchParams) {
   }
 
   normalized.sort = getSort(searchParams);
+  delete normalized.limit;
   return normalized;
 }
 
@@ -100,13 +108,113 @@ function buildFreelancersHref(searchParams: SearchParams, overrides: Record<stri
   return queryString ? `/freelancers?${queryString}` : "/freelancers";
 }
 
+function getPageNumbers(currentPage: number, totalPages: number) {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1);
+  }
+
+  const pages = new Set([1, totalPages, currentPage - 1, currentPage, currentPage + 1]);
+  return Array.from(pages)
+    .filter((page) => page >= 1 && page <= totalPages)
+    .sort((a, b) => a - b);
+}
+
+function PaginationNav({
+  pagination,
+  searchParams,
+}: {
+  pagination: Pagination | null;
+  searchParams: SearchParams;
+}) {
+  if (!pagination || pagination.totalPages <= 1) return null;
+
+  const currentPage = pagination.page;
+  const totalPages = pagination.totalPages;
+  const pageNumbers = getPageNumbers(currentPage, totalPages);
+  const showEllipsisBefore = pageNumbers[0] > 1;
+  const showEllipsisAfter = pageNumbers[pageNumbers.length - 1] < totalPages;
+
+  return (
+    <nav className="mt-8 flex flex-col items-center gap-3" aria-label="진행자 목록 페이지">
+      <p className="text-xs text-muted-foreground">
+        총 {pagination.total.toLocaleString()}명 중 {(currentPage - 1) * pagination.limit + 1}–
+        {Math.min(currentPage * pagination.limit, pagination.total).toLocaleString()}명 표시
+      </p>
+
+      <div className="flex items-center justify-center gap-1 rounded-2xl border border-line bg-card p-1 shadow-sm">
+        <Link
+          href={
+            currentPage > 1
+              ? buildFreelancersHref(searchParams, { page: String(currentPage - 1) })
+              : buildFreelancersHref(searchParams, { page: String(currentPage) })
+          }
+          aria-disabled={currentPage <= 1}
+          className={`inline-flex h-9 w-9 items-center justify-center rounded-xl text-sm font-bold transition-colors ${
+            currentPage <= 1
+              ? "pointer-events-none text-muted-foreground/40"
+              : "text-slate hover:bg-surface hover:text-text"
+          }`}
+        >
+          <ChevronLeft className="h-4 w-4" />
+          <span className="sr-only">이전 페이지</span>
+        </Link>
+
+        {showEllipsisBefore && <span className="px-2 text-sm text-muted-foreground">…</span>}
+
+        {pageNumbers.map((page) => {
+          const active = page === currentPage;
+          return (
+            <Link
+              key={page}
+              href={buildFreelancersHref(searchParams, { page: String(page) })}
+              aria-current={active ? "page" : undefined}
+              className={`inline-flex h-9 min-w-9 items-center justify-center rounded-xl px-3 text-sm font-bold transition-colors ${
+                active
+                  ? "bg-navy text-white shadow-sm"
+                  : "text-slate hover:bg-surface hover:text-text"
+              }`}
+            >
+              {page}
+            </Link>
+          );
+        })}
+
+        {showEllipsisAfter && <span className="px-2 text-sm text-muted-foreground">…</span>}
+
+        <Link
+          href={
+            currentPage < totalPages
+              ? buildFreelancersHref(searchParams, { page: String(currentPage + 1) })
+              : buildFreelancersHref(searchParams, { page: String(currentPage) })
+          }
+          aria-disabled={currentPage >= totalPages}
+          className={`inline-flex h-9 w-9 items-center justify-center rounded-xl text-sm font-bold transition-colors ${
+            currentPage >= totalPages
+              ? "pointer-events-none text-muted-foreground/40"
+              : "text-slate hover:bg-surface hover:text-text"
+          }`}
+        >
+          <ChevronRight className="h-4 w-4" />
+          <span className="sr-only">다음 페이지</span>
+        </Link>
+      </div>
+    </nav>
+  );
+}
+
 export default async function FreelancersPage({
   searchParams = {},
 }: {
   searchParams?: SearchParams;
 }) {
   const normalizedSearchParams = normalizeFreelancerSearchParams(searchParams);
-  const { items } = await getFreelancers(normalizedSearchParams);
+  const currentPage = getPage(searchParams);
+  const listSearchParams: SearchParams = {
+    ...normalizedSearchParams,
+    page: String(currentPage),
+    limit: String(PAGE_SIZE),
+  };
+  const { items, pagination } = await getFreelancers(listSearchParams);
   const freelancers: FreelancerProfile[] = items;
   const selectedCategory = getCategory(searchParams);
   const selectedSort = getSort(searchParams);
@@ -128,7 +236,7 @@ export default async function FreelancersPage({
               return (
                 <Link
                   key={option.value}
-                  href={buildFreelancersHref(normalizedSearchParams, { sort: option.value })}
+                  href={buildFreelancersHref(normalizedSearchParams, { sort: option.value, page: null })}
                   className={`rounded-xl px-4 py-2 text-sm font-bold transition-colors ${
                     active
                       ? "bg-navy text-white shadow-sm"
@@ -150,7 +258,7 @@ export default async function FreelancersPage({
             </div>
             {selectedCategory && (
               <Link
-                href={buildFreelancersHref(normalizedSearchParams, { category: null })}
+                href={buildFreelancersHref(normalizedSearchParams, { category: null, page: null })}
                 className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-bold text-slate hover:bg-card hover:text-text"
               >
                 <X className="h-3 w-3" />
@@ -161,7 +269,7 @@ export default async function FreelancersPage({
 
           <div className="flex flex-wrap gap-2">
             <Link
-              href={buildFreelancersHref(normalizedSearchParams, { category: null })}
+              href={buildFreelancersHref(normalizedSearchParams, { category: null, page: null })}
               className={`rounded-full border px-4 py-2 text-sm font-bold transition-colors ${
                 !selectedCategory
                   ? "border-navy bg-navy text-white"
@@ -175,7 +283,7 @@ export default async function FreelancersPage({
               return (
                 <Link
                   key={category.value}
-                  href={buildFreelancersHref(normalizedSearchParams, { category: category.value })}
+                  href={buildFreelancersHref(normalizedSearchParams, { category: category.value, page: null })}
                   className={`rounded-full border px-4 py-2 text-sm font-bold transition-colors ${
                     active
                       ? "border-navy bg-navy text-white"
@@ -197,68 +305,72 @@ export default async function FreelancersPage({
             : "등록된 진행자가 없습니다."}
         </p>
       ) : (
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {freelancers.map((f) => (
-            <Link key={f.id} href={`/freelancers/${f.id}`}>
-              <article className="rounded-xl border bg-card hover:shadow-lg transition-all duration-200 overflow-hidden group">
-                <div className="relative h-48 bg-muted overflow-hidden">
-                  {f.profile_image_url ? (
-                    <Image
-                      src={f.profile_image_url}
-                      alt={f.display_name || "진행자 프로필"}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-navy/10 to-navy/5">
-                      <span className="text-5xl font-bold text-navy/20">
-                        {(f.display_name || "?")[0]}
-                      </span>
+        <>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {freelancers.map((f) => (
+              <Link key={f.id} href={`/freelancers/${f.id}`}>
+                <article className="rounded-xl border bg-card hover:shadow-lg transition-all duration-200 overflow-hidden group">
+                  <div className="relative h-48 bg-muted overflow-hidden">
+                    {f.profile_image_url ? (
+                      <Image
+                        src={f.profile_image_url}
+                        alt={f.display_name || "진행자 프로필"}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-navy/10 to-navy/5">
+                        <span className="text-5xl font-bold text-navy/20">
+                          {(f.display_name || "?")[0]}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="p-4">
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <h2 className="font-semibold truncate">{f.display_name}</h2>
+                      {f.avg_rating && (
+                        <span className="flex items-center gap-0.5 text-sm font-medium shrink-0">
+                          <Star className="h-3.5 w-3.5 fill-gold text-gold" />
+                          {f.avg_rating.toFixed(1)}
+                        </span>
+                      )}
                     </div>
-                  )}
-                </div>
+                    <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{f.headline}</p>
 
-                <div className="p-4">
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <h2 className="font-semibold truncate">{f.display_name}</h2>
-                    {f.avg_rating && (
-                      <span className="flex items-center gap-0.5 text-sm font-medium shrink-0">
-                        <Star className="h-3.5 w-3.5 fill-gold text-gold" />
-                        {f.avg_rating.toFixed(1)}
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {f.categories.slice(0, 2).map((c) => (
+                        <Badge key={c} variant="secondary" className="text-xs">{c}</Badge>
+                      ))}
+                      {f.languages.slice(0, 2).map((language) => (
+                        <Badge key={language} variant="outline" className="text-xs">{language}</Badge>
+                      ))}
+                    </div>
+
+                    <div className="flex items-center justify-between text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3" />{f.region}
                       </span>
-                    )}
-                  </div>
-                  <p className="text-xs text-muted-foreground line-clamp-2 mb-3">{f.headline}</p>
+                      {f.base_price_min && (
+                        <span className="font-medium text-foreground">
+                          {formatPrice(f.base_price_min)}~
+                        </span>
+                      )}
+                    </div>
 
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {f.categories.slice(0, 2).map((c) => (
-                      <Badge key={c} variant="secondary" className="text-xs">{c}</Badge>
-                    ))}
-                    {f.languages.slice(0, 2).map((language) => (
-                      <Badge key={language} variant="outline" className="text-xs">{language}</Badge>
-                    ))}
+                    <div className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
+                      <MessageSquareText className="h-3 w-3" />
+                      <span>후기 {f.review_count ?? 0}개</span>
+                    </div>
                   </div>
+                </article>
+              </Link>
+            ))}
+          </div>
 
-                  <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1">
-                      <MapPin className="h-3 w-3" />{f.region}
-                    </span>
-                    {f.base_price_min && (
-                      <span className="font-medium text-foreground">
-                        {formatPrice(f.base_price_min)}~
-                      </span>
-                    )}
-                  </div>
-
-                  <div className="mt-3 flex items-center gap-1 text-xs text-muted-foreground">
-                    <MessageSquareText className="h-3 w-3" />
-                    <span>후기 {f.review_count ?? 0}개</span>
-                  </div>
-                </div>
-              </article>
-            </Link>
-          ))}
-        </div>
+          <PaginationNav pagination={pagination} searchParams={normalizedSearchParams} />
+        </>
       )}
     </div>
   );
