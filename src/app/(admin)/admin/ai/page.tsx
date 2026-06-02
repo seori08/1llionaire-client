@@ -13,15 +13,42 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { formatPrice } from "@/lib/utils";
-import type { PricingAnalysisResult } from "@/types";
 import { TrendingUp, Target, AlertTriangle, CheckCircle2, Loader2 } from "lucide-react";
 import { ConfirmModal } from "@/components/common/ConfirmModal";
 
-const CONFIDENCE_LABEL = {
+type Confidence = "high" | "medium" | "low";
+
+type PricingAnalysisResult = {
+  analysis: {
+    recommended_center: number;
+    recommended_min: number;
+    recommended_max: number;
+    confidence: Confidence;
+    rationale: string;
+    market_context: string;
+    factors: string[];
+    risk_notes: string[];
+  };
+  market_data: {
+    sample_count: number;
+    market_min: number;
+    avg_price_min: number;
+    market_max: number;
+  };
+};
+
+type ApplyRecommendationPayload = {
+  booking_id: string;
+  recommended_price: number;
+  bookingId: string;
+  price: number;
+};
+
+const CONFIDENCE_LABEL: Record<Confidence, { label: string; color: string }> = {
   high: { label: "높음", color: "text-emerald-600 bg-emerald-50 border-emerald-200" },
   medium: { label: "보통", color: "text-amber-600 bg-amber-50 border-amber-200" },
   low: { label: "낮음", color: "text-red-600 bg-red-50 border-red-200" },
-} as const;
+};
 
 const CATEGORIES = ["기업행사 MC", "웨딩 사회자", "쇼호스트", "컨퍼런스 MC", "라이브커머스", "아나운서"];
 
@@ -38,6 +65,163 @@ const schema = z.object({
 
 type FormValues = z.infer<typeof schema>;
 
+const toRecord = (value: unknown): Record<string, unknown> => {
+  if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+
+  return {};
+};
+
+const getNumber = (record: Record<string, unknown>, keys: string[], fallback: number): number => {
+  for (const key of keys) {
+    const value = record[key];
+
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value;
+    }
+
+    if (typeof value === "string") {
+      const parsed = Number(value);
+      if (Number.isFinite(parsed)) {
+        return parsed;
+      }
+    }
+  }
+
+  return fallback;
+};
+
+const getString = (record: Record<string, unknown>, keys: string[], fallback: string): string => {
+  for (const key of keys) {
+    const value = record[key];
+
+    if (typeof value === "string" && value.trim().length > 0) {
+      return value;
+    }
+  }
+
+  return fallback;
+};
+
+const getStringArray = (record: Record<string, unknown>, keys: string[], fallback: string[]): string[] => {
+  for (const key of keys) {
+    const value = record[key];
+
+    if (Array.isArray(value)) {
+      const strings = value.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+      if (strings.length > 0) {
+        return strings;
+      }
+    }
+  }
+
+  return fallback;
+};
+
+const normalizeConfidence = (value: string): Confidence => {
+  if (value === "high" || value === "medium" || value === "low") {
+    return value;
+  }
+
+  return "medium";
+};
+
+const normalizePricingAnalysis = (value: unknown): PricingAnalysisResult => {
+  const root = toRecord(value);
+  const analysis = toRecord(root.analysis);
+  const marketData = toRecord(root.market_data ?? root.marketData);
+
+  const recommendedCenter = getNumber(
+    analysis,
+    ["recommended_center", "recommendedCenter", "recommended_price", "recommendedPrice", "center_price", "price"],
+    getNumber(root, ["recommended_center", "recommendedCenter", "recommended_price", "recommendedPrice", "center_price", "price"], 0),
+  );
+
+  const recommendedMin = getNumber(
+    analysis,
+    ["recommended_min", "recommendedMin", "min_price", "minPrice", "price_min"],
+    getNumber(root, ["recommended_min", "recommendedMin", "min_price", "minPrice", "price_min"], Math.max(0, Math.round(recommendedCenter * 0.8))),
+  );
+
+  const recommendedMax = getNumber(
+    analysis,
+    ["recommended_max", "recommendedMax", "max_price", "maxPrice", "price_max"],
+    getNumber(root, ["recommended_max", "recommendedMax", "max_price", "maxPrice", "price_max"], Math.round(recommendedCenter * 1.2)),
+  );
+
+  const confidence = normalizeConfidence(
+    getString(analysis, ["confidence"], getString(root, ["confidence"], "medium")),
+  );
+
+  const rationale = getString(
+    analysis,
+    ["rationale", "reasoning", "reason", "summary"],
+    getString(root, ["rationale", "reasoning", "reason", "summary"], "분석 근거가 제공되지 않았습니다."),
+  );
+
+  const marketContext = getString(
+    analysis,
+    ["market_context", "marketContext", "market_summary", "marketSummary"],
+    getString(root, ["market_context", "marketContext", "market_summary", "marketSummary"], "시장 현황 데이터가 제공되지 않았습니다."),
+  );
+
+  const factors = getStringArray(
+    analysis,
+    ["factors", "price_factors", "priceFactors"],
+    getStringArray(root, ["factors", "price_factors", "priceFactors"], []),
+  );
+
+  const riskNotes = getStringArray(
+    analysis,
+    ["risk_notes", "riskNotes", "risks", "warnings"],
+    getStringArray(root, ["risk_notes", "riskNotes", "risks", "warnings"], []),
+  );
+
+  const marketMin = getNumber(
+    marketData,
+    ["market_min", "marketMin", "min_price", "minPrice"],
+    getNumber(root, ["market_min", "marketMin", "min_price", "minPrice"], recommendedMin),
+  );
+
+  const avgPriceMin = getNumber(
+    marketData,
+    ["avg_price_min", "avgPriceMin", "average_price", "averagePrice", "avg_price", "avgPrice"],
+    getNumber(root, ["avg_price_min", "avgPriceMin", "average_price", "averagePrice", "avg_price", "avgPrice"], recommendedCenter),
+  );
+
+  const marketMax = getNumber(
+    marketData,
+    ["market_max", "marketMax", "max_price", "maxPrice"],
+    getNumber(root, ["market_max", "marketMax", "max_price", "maxPrice"], recommendedMax),
+  );
+
+  const sampleCount = getNumber(
+    marketData,
+    ["sample_count", "sampleCount", "data_count", "dataCount"],
+    getNumber(root, ["sample_count", "sampleCount", "data_count", "dataCount"], 0),
+  );
+
+  return {
+    analysis: {
+      recommended_center: recommendedCenter,
+      recommended_min: recommendedMin,
+      recommended_max: recommendedMax,
+      confidence,
+      rationale,
+      market_context: marketContext,
+      factors,
+      risk_notes: riskNotes,
+    },
+    market_data: {
+      sample_count: sampleCount,
+      market_min: marketMin,
+      avg_price_min: avgPriceMin,
+      market_max: marketMax,
+    },
+  };
+};
+
 export default function AdminAiPage() {
   const [result, setResult] = useState<PricingAnalysisResult | null>(null);
   const [applyConfirm, setApplyConfirm] = useState(false);
@@ -46,17 +230,27 @@ export default function AdminAiPage() {
 
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { region: "서울" },
+    defaultValues: { region: "서울", categories: [] },
   });
 
   const analysisMutation = useMutation({
     mutationFn: (data: FormValues) => aiApi.analyzePricing(data),
-    onSuccess: (res) => setResult(res.data.data),
+    onSuccess: (res) => setResult(normalizePricingAnalysis(res.data.data)),
   });
 
   const applyMutation = useMutation({
-    mutationFn: ({ bookingId, price }: { bookingId: string; price: number }) =>
-      aiApi.applyRecommendation(bookingId, price),
+    mutationFn: ({ bookingId, price }: { bookingId: string; price: number }) => {
+      const applyRecommendation = aiApi.applyRecommendation as unknown as (
+        payload: ApplyRecommendationPayload,
+      ) => Promise<unknown>;
+
+      return applyRecommendation({
+        booking_id: bookingId,
+        recommended_price: price,
+        bookingId,
+        price,
+      });
+    },
     onSuccess: () => {
       setApplyConfirm(false);
       setBookingIdForApply("");
@@ -65,14 +259,16 @@ export default function AdminAiPage() {
 
   const toggleCategory = (cat: string) => {
     const next = selectedCategories.includes(cat)
-      ? selectedCategories.filter((c) => c !== cat)
+      ? selectedCategories.filter((category) => category !== cat)
       : [...selectedCategories, cat];
+
     setSelectedCategories(next);
-    setValue("categories", next);
+    setValue("categories", next, { shouldValidate: true });
   };
 
   const handleApply = () => {
     if (!bookingIdForApply || !result) return;
+
     applyMutation.mutate({
       bookingId: bookingIdForApply,
       price: result.analysis.recommended_center,
@@ -94,7 +290,11 @@ export default function AdminAiPage() {
           <CardTitle className="text-base">분석 조건 입력</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit((v) => analysisMutation.mutate({ ...v, categories: selectedCategories }))} noValidate className="space-y-5">
+          <form
+            onSubmit={handleSubmit((values) => analysisMutation.mutate({ ...values, categories: selectedCategories }))}
+            noValidate
+            className="space-y-5"
+          >
             <div className="grid gap-4 sm:grid-cols-2">
               <div className="space-y-1.5">
                 <Label>행사 유형 *</Label>
@@ -104,6 +304,7 @@ export default function AdminAiPage() {
               <div className="space-y-1.5">
                 <Label>지역 *</Label>
                 <Input placeholder="서울" {...register("region")} />
+                {errors.region && <p className="text-xs text-destructive">{errors.region.message}</p>}
               </div>
             </div>
 
@@ -228,10 +429,10 @@ export default function AdminAiPage() {
                     가격 영향 요인
                   </div>
                   <ul className="space-y-1">
-                    {result.analysis.factors.map((f, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                    {result.analysis.factors.map((factor, index) => (
+                      <li key={`${factor}-${index}`} className="flex items-start gap-2 text-sm text-muted-foreground">
                         <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-emerald-500 shrink-0" />
-                        {f}
+                        {factor}
                       </li>
                     ))}
                   </ul>
@@ -245,10 +446,10 @@ export default function AdminAiPage() {
                     주의사항
                   </div>
                   <ul className="space-y-1">
-                    {result.analysis.risk_notes.map((r, i) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                    {result.analysis.risk_notes.map((riskNote, index) => (
+                      <li key={`${riskNote}-${index}`} className="flex items-start gap-2 text-sm text-muted-foreground">
                         <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-amber-500 shrink-0" />
-                        {r}
+                        {riskNote}
                       </li>
                     ))}
                   </ul>
@@ -264,7 +465,7 @@ export default function AdminAiPage() {
                   <Input
                     placeholder="예약 ID 입력"
                     value={bookingIdForApply}
-                    onChange={(e) => setBookingIdForApply(e.target.value)}
+                    onChange={(event) => setBookingIdForApply(event.target.value)}
                     className="flex-1"
                   />
                   <Button
@@ -292,7 +493,7 @@ export default function AdminAiPage() {
 
       <ConfirmModal
         open={applyConfirm}
-        onOpenChange={(o) => !o && setApplyConfirm(false)}
+        onOpenChange={(open) => !open && setApplyConfirm(false)}
         title="AI 추천 단가 반영"
         description={`예약에 ${result ? formatPrice(result.analysis.recommended_center) : ""}을 적용하시겠습니까? 양측에 알림이 발송됩니다.`}
         confirmLabel="반영"

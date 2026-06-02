@@ -1,4 +1,8 @@
-import type { BackendListResponse, BackendResponse, NotificationItem } from "../api-contracts";
+import type {
+  BackendListResponse,
+  BackendResponse,
+  NotificationItem,
+} from "../api-contracts";
 import http, { toQueryParams } from "../http";
 
 const rawBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";
@@ -23,4 +27,9 @@ export const notificationApi = {
     http.delete<BackendResponse<null>>(`/api/notifications/${id}`),
 
   getStreamUrl: () => `${baseURL}/api/notifications/stream`,
+
+  connectStream: () =>
+    new EventSource(notificationApi.getStreamUrl(), {
+      withCredentials: true,
+    }),
 };
