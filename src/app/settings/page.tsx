@@ -147,6 +147,19 @@ export default function SettingsPage() {
               <p className="text-muted-foreground text-sm mt-1">{user?.email}</p>
             </div>
 
+            {user?.provider ? (
+              <Card className="mb-6 border-muted">
+                <CardHeader>
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="h-5 w-5 text-muted-foreground" />
+                    <CardTitle className="text-base text-muted-foreground">비밀번호 변경</CardTitle>
+                  </div>
+                  <CardDescription>
+                    {user.provider === "kakao" ? "카카오" : "Google"} 계정으로 로그인 중입니다.<br/>소셜 로그인 사용자는 별도 비밀번호가 없습니다.
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            ) : (
             <Card className="mb-6">
               <CardHeader>
                 <div className="flex items-center gap-2">
@@ -197,6 +210,8 @@ export default function SettingsPage() {
                 </form>
               </CardContent>
             </Card>
+            )}
+
 
             {user?.user_type !== "admin" && (
               <>

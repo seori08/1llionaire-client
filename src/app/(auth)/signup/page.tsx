@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
@@ -72,6 +72,14 @@ function SignupContent() {
     resolver: zodResolver(schema),
     defaultValues: { user_type: "customer" },
   });
+
+  // /signup?role=freelancer 등 URL 파라미터로 역할 프리셋
+  useEffect(() => {
+    const role = searchParams.get("role");
+    if (role === "freelancer" || role === "customer") {
+      setValue("user_type", role, { shouldValidate: false });
+    }
+  }, [searchParams, setValue]);
 
   const selectedRole = watch("user_type");
 

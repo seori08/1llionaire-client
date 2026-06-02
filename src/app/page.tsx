@@ -195,7 +195,7 @@ export default function HomePage() {
             </Button>
           </Link>
 
-          <Link href="/signup">
+          <Link href="/signup?role=freelancer">
             <Button size="lg" variant="tertiary">
               진행자로 등록하기
             </Button>

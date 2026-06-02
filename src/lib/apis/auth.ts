@@ -39,6 +39,13 @@ export const authApi = {
   updateMe: (data: { name?: string; phone?: string }) =>
     http.patch<BackendResponse<AuthUser>>("/api/users/me", data),
 
+  updateCustomerProfile: (data: {
+    customer_type?: "individual" | "company" | "agency";
+    company_name?: string;
+    department?: string;
+    manager_name?: string;
+  }) => http.patch<BackendResponse<{ id: string }>>("/api/users/me/customer-profile", data),
+
   changePassword: (data: { current_password: string; new_password: string }) =>
     http.patch<BackendResponse<null>>("/api/users/me/password", data),
 

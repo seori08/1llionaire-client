@@ -31,10 +31,18 @@ export const bookingApi = {
     http.post<BackendResponse<unknown>>(`/api/bookings/${id}/offers`, data),
 
   acceptOffer: (bookingId: string, offerId: string) =>
-    http.patch<BackendResponse<unknown>>(`/api/bookings/${bookingId}/offers/${offerId}/accept`),
+    http.patch<BackendResponse<unknown>>(
+      `/api/bookings/${bookingId}/offers/${offerId}/accept`
+    ),
 
   rejectOffer: (bookingId: string, offerId: string) =>
-    http.patch<BackendResponse<unknown>>(`/api/bookings/${bookingId}/offers/${offerId}/reject`),
+    http.patch<BackendResponse<unknown>>(
+      `/api/bookings/${bookingId}/offers/${offerId}/reject`
+    ),
+
+  // 고객이 직접 행사 완료 확인
+  completeBooking: (id: string) =>
+    http.patch<BackendResponse<Booking>>(`/api/bookings/${id}/complete-by-customer`),
 
   cancelBooking: (id: string, reason?: string) =>
     http.patch<BackendResponse<Booking>>(`/api/bookings/${id}/cancel`, {

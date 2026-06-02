@@ -41,8 +41,8 @@ export default function ForgotPasswordPage() {
           <p className="font-semibold">대신 이렇게 해보세요</p>
           <ul className="space-y-1 text-[13px]">
             <li>• 로그인 후 <strong>계정 설정 → 비밀번호 변경</strong>에서 직접 변경할 수 있습니다.</li>
-            <li>• 카카오/구글 소셜 로그인을 사용하면 비밀번호가 필요 없습니다.</li>
-            <li>• 계정 복구가 필요하면 <strong>admin@freemic.co.kr</strong>로 문의해 주세요.</li>
+            <li>• 카카오/구글 소셜 로그인을 사용하면 비밀번호 없이 로그인할 수 있습니다.</li>
+            <li>• 계정 복구가 필요하면 <strong>dear.hope.on@gmail.com</strong>로 문의해 주세요.</li>
           </ul>
         </div>
       </CardContent>

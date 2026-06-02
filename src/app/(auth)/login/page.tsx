@@ -83,7 +83,7 @@ function LoginContent() {
   const signupHref = next ? `/signup?next=${encodeURIComponent(next)}` : "/signup";
   const oauthError = searchParams.get("error");
   const startOAuth = (provider: "kakao" | "google") => {
-    window.location.href = authApi.getOAuthStartUrl(provider, "customer");
+    window.location.href = `/oauth-role?provider=${provider}`;
   };
 
   return (

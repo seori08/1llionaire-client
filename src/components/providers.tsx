@@ -125,7 +125,26 @@ function AuthProvider({ children }: { children: ReactNode }) {
       try {
         const res = await authApi.me();
         const currentUser = getAuthUser(res.data);
-        if (mounted) setUser(currentUser);
+        if (mounted) {
+          setUser(currentUser);
+
+          // OAuth 로그인 성공 후 대시보드로 이동
+          // ProtectedRoute의 isLoading race condition을 피하기 위해 여기서 처리
+          if (
+            currentUser &&
+            typeof window !== "undefined" &&
+            window.location.search.includes("login_success=1")
+          ) {
+            const dashboardPath =
+              currentUser.user_type === "admin"
+                ? "/admin"
+                : currentUser.user_type === "customer"
+                  ? "/customer/requests"
+                  : "/freelancer/profile";
+            window.history.replaceState({}, "", window.location.pathname);
+            window.location.replace(dashboardPath);
+          }
+        }
       } catch {
         if (mounted) setUser(null);
       } finally {
