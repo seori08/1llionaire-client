@@ -4,7 +4,7 @@ import type {
   ChatMessage,
   ChatRoom,
   ChatRoomDetail,
-} from "../lib/api-contracts";
+} from "../api-contracts";
 import http, { toQueryParams } from "../http";
 
 export const chatApi = {

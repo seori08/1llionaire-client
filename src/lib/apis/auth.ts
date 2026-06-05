@@ -1,5 +1,5 @@
 import type { User } from "@/types";
-import type { AuthSession, AuthUser, BackendResponse } from "../lib/api-contracts";
+import type { AuthSession, AuthUser, BackendResponse } from "../api-contracts";
 import http from "../http";
 
 const rawBaseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:4000";

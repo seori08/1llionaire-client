@@ -3,7 +3,7 @@ import type {
   PaymentConfirmPayload,
   PaymentDetail,
   PaymentPreparePayload,
-} from "../lib/api-contracts";
+} from "../api-contracts";
 import http from "../http";
 
 export const paymentApi = {

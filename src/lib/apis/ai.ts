@@ -1,4 +1,4 @@
-import type { BackendResponse, PricingAnalysisResult, PricingAnalysisRequest } from "../lib/api-contracts";
+import type { BackendResponse, PricingAnalysisResult, PricingAnalysisRequest } from "../api-contracts";
 import http from "../http";
 
 export const aiApi = {

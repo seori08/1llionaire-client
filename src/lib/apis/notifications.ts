@@ -2,7 +2,7 @@ import type {
   BackendListResponse,
   BackendResponse,
   NotificationItem,
-} from "../lib/api-contracts";
+} from "../api-contracts";
 import http, { toQueryParams } from "../http";
 
 export const notificationApi = {

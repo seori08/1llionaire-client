@@ -3,7 +3,7 @@ import type {
   BackendResponse,
   EventRequest,
   Recommendation,
-} from "../lib/api-contracts";
+} from "../api-contracts";
 import http, { toQueryParams } from "../http";
 
 export const customerApi = {

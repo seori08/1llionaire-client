@@ -3,7 +3,7 @@ import type {
   BackendResponse,
   FreelancerProfile,
   Review,
-} from "../lib/api-contracts";
+} from "../api-contracts";
 import http, { toQueryParams } from "../http";
 
 export const publicApi = {

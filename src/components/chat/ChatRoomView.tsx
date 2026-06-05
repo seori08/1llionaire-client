@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoadingState, ErrorState } from "@/components/common/States";
 import { BookingStatusBadge, PaymentStatusBadge } from "@/components/common/StatusBadge";
-import { BookingOffer, ChatMessage } from "@/types";
+import { BookingOffer, ChatMessage, ChatRoomDetail } from "@/types";
 import { cn, formatDate, formatPrice } from "@/lib/utils";
 
 function OfferActions({
@@ -109,9 +109,9 @@ export function ChatRoomView({ roomId, basePath }: { roomId: string; basePath: "
     refetchInterval: 3000,
   });
 
-  const detail = data?.data?.data;
+  const detail: ChatRoomDetail | undefined = data?.data?.data;
   const room = detail?.room;
-  const messages = useMemo(() => detail?.messages ?? [], [detail?.messages]);
+  const messages = useMemo<ChatMessage[]>(() => detail?.messages ?? [], [detail?.messages]);
   const booking = room?.booking;
 
   useEffect(() => {
