@@ -18,8 +18,8 @@ import type {
   Review,
   ReviewStatus,
   SettlementStatus,
-} from "../api-contracts";
-import http, { toQueryParams } from "../http";
+} from "../lib/api-contracts";
+import http, { toQueryParams } from "../lib/http";
 
 export const adminApi = {
   getDashboard: () =>

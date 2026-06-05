@@ -3,8 +3,8 @@ import type {
   PaymentConfirmPayload,
   PaymentDetail,
   PaymentPreparePayload,
-} from "../api-contracts";
-import http from "../http";
+} from "../lib/api-contracts";
+import http from "../lib/http";
 
 export const paymentApi = {
   prepare: (booking_id: string) =>

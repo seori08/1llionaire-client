@@ -6,8 +6,8 @@ import type {
   FreelancerSettlementRow,
   Portfolio,
   Quote,
-} from "../api-contracts";
-import http, { toQueryParams } from "../http";
+} from "../lib/api-contracts";
+import http, { toQueryParams } from "../lib/http";
 
 export const freelancerApi = {
   submitProfile: (data: unknown) =>

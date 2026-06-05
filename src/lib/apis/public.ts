@@ -3,8 +3,8 @@ import type {
   BackendResponse,
   FreelancerProfile,
   Review,
-} from "../api-contracts";
-import http, { toQueryParams } from "../http";
+} from "../lib/api-contracts";
+import http, { toQueryParams } from "../lib/http";
 
 export const publicApi = {
   getFreelancers: (params?: Record<string, unknown>) =>

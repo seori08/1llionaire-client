@@ -2,8 +2,8 @@ import type {
   BackendListResponse,
   BackendResponse,
   NotificationItem,
-} from "../api-contracts";
-import http, { toQueryParams } from "../http";
+} from "../lib/api-contracts";
+import http, { toQueryParams } from "../lib/http";
 
 export const notificationApi = {
   getNotifications: (params?: Record<string, unknown>) =>

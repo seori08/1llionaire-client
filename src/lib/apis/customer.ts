@@ -3,8 +3,8 @@ import type {
   BackendResponse,
   EventRequest,
   Recommendation,
-} from "../api-contracts";
-import http, { toQueryParams } from "../http";
+} from "../lib/api-contracts";
+import http, { toQueryParams } from "../lib/http";
 
 export const customerApi = {
   createRequest: (data: unknown) =>
