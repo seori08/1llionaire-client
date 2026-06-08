@@ -112,7 +112,7 @@ export function Header() {
         <Link href="/" prefetch={false} className="flex items-center gap-3 text-text">
           <Image
             src="/brand-icon.webp"
-            alt="프리마이크"
+            alt="보잇 Voit"
             width={48}
             height={48}
             className="h-10 w-10 object-contain sm:h-11 sm:w-11"
@@ -120,7 +120,7 @@ export function Header() {
             fetchPriority="low"
           />
           <span className="text-[21px] font-extrabold tracking-[-0.03em]">
-            프리마이크
+            보잇 Voit
           </span>
         </Link>
 
